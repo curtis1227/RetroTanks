@@ -21,7 +21,7 @@ window.onload = function() {
   tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue', 0);
 
   //Update per time
-  var framesPerSecond = 2;
+  var framesPerSecond = 30;
   setInterval(update, 1000/framesPerSecond);
 }
 

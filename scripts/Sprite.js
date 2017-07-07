@@ -1,5 +1,6 @@
 function Sprite(posX, posY, width, height, context, src)
 {
+	console.log(posX + " " + posY);
 	this.posX = posY;
 	this.posY = posX;
 	this.width = width;
@@ -13,7 +14,7 @@ function Sprite(posX, posY, width, height, context, src)
 
 	this.update = function()
 	{
-		console.log(this.currFrame);
+		//console.log(this.currFrame);
 		context.drawImage(this.srcImg, this.currFrame * this.width, 0, 
 						  this.width, this.height, this.posX, this.posY, 
 						  this.width, this.height);
