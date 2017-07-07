@@ -3,34 +3,30 @@
   <head>
     <title>Li-Song</title>
   </head>
-  some text here
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <table border="0" cellpadding="10">
+    <tr>
+      <td>
+        <h1>Please check back later!</h1>
+      </td>
+      <td>
+        Something Pretty!
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <h1>H1</h1>
+      </td>
+      <td>
+        <h2>H2</h2>
+      </td>
+    </tr>
+  </table>
 
-<<<<<<< HEAD
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
   var cvs;
   var cvsContext;
   var blockdim;
-=======
-    <table border="0" cellpadding="10">
-      <tr>
-        <td>
-          <h1>Please check back later!</h1>
-        </td>
-        <td>
-          Something Pretty!
-        </td>
-      </tr>
-      <tr>
-        <td>
-          <h1>H1</h1>
-        </td>
-        <td>
-          <h2>H2</h2>
-        </td>
-      </tr>
-    </table>
->>>>>>> 8a8c9b1edf180f721f5e0c93f45af4928dfb25de
 
     window.onload = function() {
       cvs = document.getElementById('gameCanvas');
@@ -41,7 +37,8 @@
 
       blockdim = 100;
     }
-    function update(){
+
+    function update() {
       blockdim -= .5;
 
       cvsContext.fillStyle = 'blue';
