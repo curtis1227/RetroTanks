@@ -18,8 +18,8 @@ window.onload = function() {
 }
 
 function update() {
-  tanks[0].moveHori(1);
-  tanks[0].moveVert(1);
+  tanks[0].moveHori(2);
+  tanks[0].moveVert(2);
 
   //Redraw canvas
   cvsContext.fillStyle = 'black';
