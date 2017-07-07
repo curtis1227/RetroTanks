@@ -1,6 +1,6 @@
 var cvs;
 var cvsContext;
-var tanks;
+var tanks = [];
 
 window.onload = function() {
   //Initialize variables
@@ -18,7 +18,8 @@ window.onload = function() {
 }
 
 function update() {
-  //tanks[0].moveHori(1);
+  tanks[0].moveHori(1);
+  tanks[0].moveVert(1);
 
   //Redraw canvas
   cvsContext.fillStyle = 'black';
