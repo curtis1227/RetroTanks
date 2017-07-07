@@ -8,19 +8,18 @@ function Tank(IposX,IposY,Icolor){
   this.color = Icolor;
   this.direction = UP;
   this.bullets = [];
-  this.sprite = new Sprite(IposX, IposY, TANKSIZE, TANKSIZE, cvsContext, "tanks.png");
+  this.sprite = new Sprite(IposX, IposY, TANKSIZE, TANKSIZE, cvsContext, "src/tanks.png");
 
   ////MEMBER FUNCTIONS////
   //Update tank
   this.update = function(){
+    //update sprites
+    this.sprite.update();
     
     //Update bullets
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
-
-    //update sprites
-    this.sprite.update();
   }
   //Move
   this.move = function(Idirection){
