@@ -1,0 +1,27 @@
+<html>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+  var cvs;
+  var cvsContext;
+  var blockdim;
+
+    window.onload = function() {
+      cvs = document.getElementById('gameCanvas');
+      cvsContext = cvs.getContext('2d');
+
+      var framesPerSecond = 30;
+      setInterval(update, 1000/framesPerSecond);
+
+      blockdim = 100;
+    }
+
+    function update() {
+      blockdim -= .5;
+
+      cvsContext.fillStyle = 'blue';
+      cvsContext.fillRect(0,0,cvs.width,cvs.height);
+      cvsContext.fillStyle = 'yellow';
+      cvsContext.fillRect(cvs.width/2-blockdim/2,cvs.height/2-blockdim/2,blockdim,blockdim);
+    }
+  </script>
+</html>
