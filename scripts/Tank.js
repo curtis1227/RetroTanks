@@ -1,5 +1,5 @@
-const TankSize = 50;
-const moveAmt = 2;
+const TANKSIZE = 50;
+var moveAmt = 2;
 
 function Tank(IposX,IposY,Icolor){
   //Initialize vars
@@ -13,22 +13,22 @@ function Tank(IposX,IposY,Icolor){
   //Update tank
   this.update = function(){
     cvsContext.fillStyle = this.color;
-    cvsContext.fillRect(this.posX-TankSize/2,this.posY-TankSize/2,TankSize,TankSize);
+    cvsContext.fillRect(this.posX-TANKSIZE/2,this.posY-TANKSIZE/2,TANKSIZE,TANKSIZE);
   }
   //Move
   this.move = function(Idirection){
     this.direction = Idirection;
     //Up
-    if(Idirection == 0){
+    if(Idirection == UP){
       this.posY += -moveAmt;
     //Right
-    } else if(Idirection == 90){
+    } else if(Idirection == RIGHT){
       this.posX += moveAmt;
     //Down
-    } else if(Idirection == 180){
+    } else if(Idirection == DOWN){
       this.posY += moveAmt;
     //Left
-    } else if(Idirection == 270){
+    } else if(Idirection == LEFT){
       this.posX += -moveAmt;
     }
   }
