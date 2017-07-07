@@ -1,4 +1,3 @@
-const BulletSize = 4;
 function Bullet(IposX,IposY,IspeedX,IspeedY){
   //Initialize vars
   this.posX = IposX;
@@ -13,7 +12,7 @@ function Bullet(IposX,IposY,IspeedX,IspeedY){
     this.posY += this.speedY;
 
     cvsContext.fillStyle = 'white';
-    cvsContext.fillRect(this.posX-BulletSize/2,this.posY-BulletSize/2,BulletSize,BulletSize);
+    cvsContext.fillRect(this.posX-BULLETSIZE/2,this.posY-BULLETSIZE/2,BULLETSIZE,BULLETSIZE);
   }
 
   //Draw bullet for the 1st time
