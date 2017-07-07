@@ -59,9 +59,9 @@ function update() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
   chooseActions();
-
-  //Draw tanks
+  
+  //Update tanks
   for(var i = 0;i<tanks.length;i++){
-    tanks[i].draw();
+    tanks[i].update();
   }
 }
