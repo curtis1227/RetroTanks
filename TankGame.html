@@ -3,25 +3,57 @@
   <script>
   var cvs;
   var cvsContext;
-  var blockdim;
+  var tanks;
+  const TankSize = 50;
+
+    function Tank(IposX,IposY,Icolor){
+      //Initialize vars
+      this.posX = IposX;
+      this.posY = IposY;
+      this.color = Icolor;
+
+      ////MEMBER FUNCTIONS////
+      //Draw aka Update tank
+      this.draw = function(){
+        cvsContext.fillStyle = this.color;
+        cvsContext.fillRect(this.posX-TankSize/2,this.posY-TankSize/2,TankSize,TankSize);
+      }
+
+      //Draw tank for the 1st time
+      this.draw();
+
+      /*this.moveHori = function(amt){
+        posX += amt;
+      }*/
+      
+    }
 
     window.onload = function() {
+      //Initialize variables
       cvs = document.getElementById('gameCanvas');
       cvsContext = cvs.getContext('2d');
 
+      cvsContext.fillStyle = 'black';
+      cvsContext.fillRect(0,0,cvs.width,cvs.height);
+
+      tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue');
+
+      //Update per time
       var framesPerSecond = 30;
       setInterval(update, 1000/framesPerSecond);
-
-      blockdim = 100;
     }
 
     function update() {
-      blockdim -= .5;
+      //tanks[0].moveHori(1);
 
-      cvsContext.fillStyle = 'blue';
+      //Redraw canvas
+      cvsContext.fillStyle = 'black';
       cvsContext.fillRect(0,0,cvs.width,cvs.height);
-      cvsContext.fillStyle = 'yellow';
-      cvsContext.fillRect(cvs.width/2-blockdim/2,cvs.height/2-blockdim/2,blockdim,blockdim);
+
+      //Draw tanks
+      for(var i = 0;i<tanks.length;i++){
+        tanks[i].draw();
+      }
     }
   </script>
 </html>
