@@ -20,16 +20,16 @@ function Tank(IposX,IposY,Icolor){
     this.direction = Idirection;
     //Up
     if(Idirection == 0){
-      posY += -moveAmt;
+      this.posY += -moveAmt;
     //Right
     } else if(Idirection == 90){
-      posX += moveAmt;
+      this.posX += moveAmt;
     //Down
     } else if(Idirection == 180){
-      posY += moveAmt;
+      this.posY += moveAmt;
     //Left
     } else if(Idirection == 270){
-      posX += -moveAmt;
+      this.posX += -moveAmt;
     }
   }
   //Fire bullet

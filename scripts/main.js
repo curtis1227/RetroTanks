@@ -48,7 +48,7 @@ function chooseActions()
     tanks[0].move(LEFT);
 
   //shoot function
-  else if (keyMap[SPACE])
+  if (keyMap[SPACE])
     console.log("space");
 }
 
