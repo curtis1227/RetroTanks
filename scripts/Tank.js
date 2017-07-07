@@ -11,15 +11,11 @@ function Tank(IposX,IposY,Icolor){
     cvsContext.fillStyle = this.color;
     cvsContext.fillRect(this.posX-TankSize/2,this.posY-TankSize/2,TankSize,TankSize);
   }
-  //Move horizontally
-  this.moveHori = function(amt){
-    this.posX += amt;
-  }
-  //Move vertically
-  this.moveVert = function(amt){
-    this.posY += amt;
-  }
 
   //Draw tank for the 1st time
   this.draw();
+
+  /*this.moveHori = function(amt){
+    posX += amt;
+  }*/
 }
