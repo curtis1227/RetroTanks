@@ -3,6 +3,8 @@ var cvsContext;
 var tanks = [];
 var keyPress;
 var keyMap = {};
+const TANKSIZE = 50;
+const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
@@ -11,9 +13,11 @@ window.onload = function() {
   cvs = document.getElementById('gameCanvas');
   cvsContext = cvs.getContext('2d');
 
+  //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
+  //Test tank
   tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue', 0);
 
   //Update per time
@@ -49,18 +53,39 @@ function chooseActions()
 
   //shoot function
   if (keyMap[SPACE])
-    console.log("space");
+    tanks[0].fireBullet();
 }
 
 function update() {
 
-  //Redraw canvas
+  //Check bullets collision with tanks
+  for(var i = 0;i<tanks.length;i++){
+    for(var j = 0;j<tanks[i].bullets.length;j++){
+      for(var k = 0;k<tanks.length;k++){
+        var bulletX = tanks[i].bullets[j].posX;
+        var bulletY = tanks[i].bullets[j].posY;
+        //If collided
+        if(bulletX < tanks[k].posX + TANKSIZE/2
+          && bulletX > tanks[k].posX - TANKSIZE/2
+          && bulletY < tanks[k].posY + TANKSIZE/2
+          && bulletY > tanks[k].posY - TANKSIZE/2){
+          //Delete the bullet
+          tanks[i].deleteBullet[j];
+          //Move tank off screen
+          tanks[k].posX = -100;
+          tanks[k].posY = -100;
+        }
+      }
+    }
+  }
+
+  chooseActions();
+
+  //Update canvas
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
-  chooseActions();
-  
-  //Update tanks
+  //Update tanks and bullets
   for(var i = 0;i<tanks.length;i++){
     tanks[i].update();
   }

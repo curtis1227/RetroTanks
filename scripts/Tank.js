@@ -1,12 +1,12 @@
-const TANKSIZE = 50;
 var moveAmt = 2;
+var bulletSpeed = 10;
 
 function Tank(IposX,IposY,Icolor){
   //Initialize vars
   this.posX = IposX;
   this.posY = IposY;
   this.color = Icolor;
-  this.direction = 0;
+  this.direction = UP;
   this.bullets = [];
 
   ////MEMBER FUNCTIONS////
@@ -14,9 +14,15 @@ function Tank(IposX,IposY,Icolor){
   this.update = function(){
     cvsContext.fillStyle = this.color;
     cvsContext.fillRect(this.posX-TANKSIZE/2,this.posY-TANKSIZE/2,TANKSIZE,TANKSIZE);
+    
+    //Update bullets
+    for(var i = 0;i < this.bullets.length;i++){
+      this.bullets[i].update();
+    }
   }
   //Move
   this.move = function(Idirection){
+    //Set direction
     this.direction = Idirection;
     //Up
     if(Idirection == UP){
@@ -32,8 +38,26 @@ function Tank(IposX,IposY,Icolor){
       this.posX += -moveAmt;
     }
   }
-  //Fire bullet
+  //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
+    //Up
+    if(this.direction == UP){
+      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY-TANKSIZE/2-8,0,-bulletSpeed);
+    //Right
+    } else if(this.direction == RIGHT){
+      this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE/2+8,this.posY,bulletSpeed,0);
+    //Down
+    } else if(this.direction == DOWN){
+      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY+TANKSIZE/2+8,0,bulletSpeed);
+    //Left
+    } else if(this.direction == LEFT){
+      this.bullets[this.bullets.length] = new Bullet(this.posX-TANKSIZE/2-8,this.posY,-bulletSpeed,0);
+    }
+  }
+  //Delete bullet
+  this.deleteBullet = function(bulletNumber){
+    delete this.bullets[bulletNumber];
+    this.bullets.splice(bulletNumber,1);
   }
 
   //Draw tank for the 1st time
