@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Li-Song</title>
+  </head>
+  some text here
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+<<<<<<< HEAD
+  <script>
+  var cvs;
+  var cvsContext;
+  var blockdim;
+=======
+    <table border="0" cellpadding="10">
+      <tr>
+        <td>
+          <h1>Please check back later!</h1>
+        </td>
+        <td>
+          Something Pretty!
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <h1>H1</h1>
+        </td>
+        <td>
+          <h2>H2</h2>
+        </td>
+      </tr>
+    </table>
+>>>>>>> 8a8c9b1edf180f721f5e0c93f45af4928dfb25de
+
+    window.onload = function() {
+      cvs = document.getElementById('gameCanvas');
+      cvsContext = cvs.getContext('2d');
+
+      var framesPerSecond = 30;
+      setInterval(update, 1000/framesPerSecond);
+
+      blockdim = 100;
+    }
+    function update(){
+      blockdim -= .5;
+
+      cvsContext.fillStyle = 'blue';
+      cvsContext.fillRect(0,0,cvs.width,cvs.height);
+      cvsContext.fillStyle = 'yellow';
+      cvsContext.fillRect(cvs.width/2-blockdim/2,cvs.height/2-blockdim/2,blockdim,blockdim);
+    }
+  </script>
+</html>
