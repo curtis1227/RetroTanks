@@ -13,12 +13,15 @@ function Sprite(posX, posY, width, height, context, src)
 
 	this.update = function()
 	{
-		/*context.drawImage(this.srcImg, this.currFrame * this.width, 0, 
+		console.log(this.currFrame);
+		context.drawImage(this.srcImg, this.currFrame * this.width, 0, 
 						  this.width, this.height, this.posX, this.posY, 
-						  this.width, this.height);*/
+						  this.width, this.height);
 
-		if ((this.currFrame++) * this.width > this.srcImg.width)
+		if ((this.currFrame + 2) * this.width >= this.srcImg.width)
 			this.currFrame = 0;
+		else
+			this.currFrame++;
 	}
 
 	this.setPos = function(posX, posY)

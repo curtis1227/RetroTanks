@@ -3,7 +3,7 @@ var cvsContext;
 var tanks = [];
 var keyPress;
 var keyMap = {};
-const TANKSIZE = 50;
+const TANKSIZE = 84;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
@@ -21,7 +21,7 @@ window.onload = function() {
   tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue', 0);
 
   //Update per time
-  var framesPerSecond = 30;
+  var framesPerSecond = 2;
   setInterval(update, 1000/framesPerSecond);
 }
 
