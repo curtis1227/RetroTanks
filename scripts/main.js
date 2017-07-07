@@ -25,8 +25,10 @@ window.onload = function() {
 
 window.onkeydown = window.onkeyup = function(e)
 {
+  console.log(e.keyCode);
   keyMap[e.keyCode]  = (e.type == "keydown");
-  keyPress = e.keyCode;
+  if (e.type != "keyup" && e.keyCode != SPACE)
+    keyPress = e.keyCode;
 }
 
 function chooseActions()
@@ -49,7 +51,7 @@ function chooseActions()
 
   //shoot function
   if (keyMap[SPACE])
-    console.log("space");
+    fireBullet();
 }
 
 function update() {
