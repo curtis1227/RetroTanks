@@ -60,11 +60,13 @@ function chooseActions()
 
 function update() {
 
-  //Need to get rid of tank hitting self issue
   //Check bullets collision with tanks
   for(var i = 0;i<tanks.length;i++){
     for(var j = 0;j<tanks[i].bullets.length;j++){
       for(var k = 0;k<tanks.length;k++){
+        //Skip the tank that fired
+        if(i == k) {continue;}
+
         var bulletX = tanks[i].bullets[j].posX;
         var bulletY = tanks[i].bullets[j].posY;
         //If collided
