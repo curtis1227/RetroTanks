@@ -52,16 +52,16 @@ function Tank(IposX,IposY,Icolor){
     {
       //Up
       if(this.direction == UP){
-        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY-TANKSIZE/2-4,0,-bulletSpeed);
+        this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY,0,-bulletSpeed);
       //Right
       } else if(this.direction == RIGHT){
-        this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE/2+4,this.posY,bulletSpeed,0);
+        this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE,this.posY + TANKSIZE / 2,bulletSpeed,0);
       //Down
       } else if(this.direction == DOWN){
-        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY+TANKSIZE/2+4,0,bulletSpeed);
+        this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY+TANKSIZE,0,bulletSpeed);
       //Left
       } else if(this.direction == LEFT){
-        this.bullets[this.bullets.length] = new Bullet(this.posX-TANKSIZE/2-4,this.posY,-bulletSpeed,0);
+        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY + TANKSIZE / 2,-bulletSpeed,0);
       }
       this.shootCooldown = shootDelay;
     }
