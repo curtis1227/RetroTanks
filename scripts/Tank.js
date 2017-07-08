@@ -45,6 +45,18 @@ function Tank(IposX,IposY,Icolor){
     } else if(Idirection == LEFT){
       this.posX += -moveAmt;
     }
+
+    //bounds of screen
+    if (this.posY - TANKSIZE / 2 < 0)
+      this.posY += moveAmt;
+    else if (this.posX + TANKSIZE / 2 >= cvs.width)
+      this.posX += -moveAmt;
+    else if (this.posY + TANKSIZE / 2 >= cvs.height)
+      this.posY += -moveAmt;
+    else if (this.posX - TANKSIZE / 2 < 0)
+      this.posX += moveAmt;
+    //console.log(cvs.width + " " + cvs.height);
+    //console.log(this.posX + " " + this.posY);
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
