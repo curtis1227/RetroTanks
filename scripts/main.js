@@ -1,5 +1,6 @@
 var cvs;
 var cvsContext;
+var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
 var tanks = [];
 var keyPress;
 var keyMap = {};
@@ -13,12 +14,21 @@ window.onload = function() {
   cvs = document.getElementById('gameCanvas');
   cvsContext = cvs.getContext('2d');
 
+  //Make game table
+  gameTable = document.getElementById('gameTable');
+  scoreRow = gameTable.insertRow(0);
+  scoreNameCell = scoreRow.insertCell(0);
+  scoreNameCell.innerHTML = "Score: ";
+  scoreScoreCell = scoreRow.insertCell(1);
+  scoreScoreCell.innerHTML = 0;
+
   //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
   //Test tank
   tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue');
+  tanks[1] = new Tank(200,100,'red');
 
   //Update per time
   var framesPerSecond = 30;
@@ -74,8 +84,10 @@ function update() {
           && bulletX > tanks[k].posX - TANKSIZE/2
           && bulletY < tanks[k].posY + TANKSIZE/2
           && bulletY > tanks[k].posY - TANKSIZE/2){
-          //Delete the bullet
+          //Delete the bullet and update score
           tanks[i].deleteBullet(j);
+          tanks[i].score += 1;
+          scoreScoreCell.innerHTML = tanks[i].score;
           //Move tank off screen
           tanks[k].posX = -100;
           tanks[k].posY = -100;
