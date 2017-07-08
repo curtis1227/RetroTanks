@@ -1,4 +1,5 @@
-var port = 8888;
+const FPS = 30;
+const port = 8888;
 var players = [];
 var numPlayers = 0;
 
@@ -19,6 +20,7 @@ server.listen(port, serverStart);
 function serverStart()
 {
 	console.log("Server Started on Port: " + port);
+	setInterval(update, 1000/framesPerSecond);
 }
 
 io.on("connection", onConnection)
@@ -38,9 +40,9 @@ function onConnection(socket)
 		console.log("Array size: " + players.length);
 	});
 
-	socket.on("test", function()
+	socket.on("test", function(arr)
 	{
-		console.log("test");
+		console.log(arr[0]);
 	});
 }
 
