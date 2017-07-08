@@ -17,7 +17,7 @@ function Tank(IposX,IposY,Icolor){
   this.update = function(){
     if (this.shootCooldown-- <= 0)
       this.shootCooldown = 0;
-    console.log(this.shootCooldown);
+    //console.log(this.shootCooldown);
     
     //update sprites
     this.sprite.updateSprite(this.posX, this.posY, this.direction);
