@@ -18,7 +18,7 @@ window.onload = function() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
   //Test tank
-  tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue', 0);
+  tanks[0] = new Tank(cvs.width/2 - TANKSIZE / 2,cvs.height/2 - TANKSIZE / 2,'blue');
 
   //Update per time
   var framesPerSecond = 30;
@@ -60,6 +60,7 @@ function chooseActions()
 
 function update() {
 
+  //Need to get rid of tank hitting self issue
   //Check bullets collision with tanks
   for(var i = 0;i<tanks.length;i++){
     for(var j = 0;j<tanks[i].bullets.length;j++){
