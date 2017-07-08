@@ -18,9 +18,6 @@ function Tank(IposX,IposY,Icolor){
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
-
-    //update sprites
-    this.sprite.update();
   }
   //Move
   this.move = function(Idirection){
@@ -40,7 +37,7 @@ function Tank(IposX,IposY,Icolor){
       this.posX += -moveAmt;
     }
 
-    this.sprite.setPos(this.posX, this.posY);
+    this.sprite.update(this.posX, this.posY);
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
