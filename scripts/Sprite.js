@@ -17,7 +17,7 @@ function Sprite(x, y, dir, w, h, ctx, src)
 		this.posX = newX;
 		this.posY = newY;
 		this.direction = newDir;
-  		console.log(this.posX + " " + this.posY);
+  		//console.log(this.posX + " " + this.posY);
 
   		//rotating entire canvas to rotate tank cuz apparently theres no better way
   		this.context.translate(this.posX + this.width / 2, this.posY + this.height / 2);

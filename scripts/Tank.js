@@ -1,4 +1,5 @@
 var moveAmt = 2;
+var shootDelay = 45;
 var bulletSpeed = 10;
 
 function Tank(IposX,IposY,Icolor){
@@ -9,6 +10,7 @@ function Tank(IposX,IposY,Icolor){
   this.direction = UP;
   this.bullets = [];
   this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "tanks.png");
+  this.shootCooldown = 0;
 
   ////MEMBER FUNCTIONS////
   //Update tank
@@ -18,6 +20,10 @@ function Tank(IposX,IposY,Icolor){
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
+
+    if (this.shootCooldown-- <= 0)
+      this.shootCooldown = 0;
+    console.log(this.shootCooldown);
 
     this.sprite.updateSprite(this.posX, this.posY, this.direction);
   }
@@ -41,18 +47,22 @@ function Tank(IposX,IposY,Icolor){
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
-    //Up
-    if(this.direction == UP){
-      this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY,0,-bulletSpeed);
-    //Right
-    } else if(this.direction == RIGHT){
-      this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE,this.posY + TANKSIZE / 2,bulletSpeed,0);
-    //Down
-    } else if(this.direction == DOWN){
-      this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY+TANKSIZE,0,bulletSpeed);
-    //Left
-    } else if(this.direction == LEFT){
-      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY + TANKSIZE / 2,-bulletSpeed,0);
+    if (this.shootCooldown <= 0)
+    {
+      //Up
+      if(this.direction == UP){
+        this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY,0,-bulletSpeed);
+      //Right
+      } else if(this.direction == RIGHT){
+        this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE,this.posY + TANKSIZE / 2,bulletSpeed,0);
+      //Down
+      } else if(this.direction == DOWN){
+        this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY+TANKSIZE,0,bulletSpeed);
+      //Left
+      } else if(this.direction == LEFT){
+        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY + TANKSIZE / 2,-bulletSpeed,0);
+      }
+      this.shootCooldown = shootDelay;
     }
   }
   //Delete bullet
