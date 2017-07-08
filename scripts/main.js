@@ -73,7 +73,7 @@ function update() {
           && bulletY < tanks[k].posY + TANKSIZE/2
           && bulletY > tanks[k].posY - TANKSIZE/2){
           //Delete the bullet
-          tanks[i].deleteBullet[j];
+          tanks[i].deleteBullet(j);
           //Move tank off screen
           tanks[k].posX = -100;
           tanks[k].posY = -100;

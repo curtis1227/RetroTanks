@@ -9,23 +9,24 @@ function Tank(IposX,IposY,Icolor){
   this.color = Icolor;
   this.direction = UP;
   this.bullets = [];
-  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "tanks.png");
+  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "src/tanks.png");
   this.shootCooldown = 0;
 
   ////MEMBER FUNCTIONS////
   //Update tank
   this.update = function(){
+    if (this.shootCooldown-- <= 0)
+      this.shootCooldown = 0;
+    console.log(this.shootCooldown);
+    
+    //update sprites
+    this.sprite.updateSprite(this.posX, this.posY, this.direction);
     
     //Update bullets
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
 
-    if (this.shootCooldown-- <= 0)
-      this.shootCooldown = 0;
-    console.log(this.shootCooldown);
-
-    this.sprite.updateSprite(this.posX, this.posY, this.direction);
   }
   //Move
   this.move = function(Idirection){
