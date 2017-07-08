@@ -8,7 +8,7 @@ function Tank(IposX,IposY,Icolor){
   this.color = Icolor;
   this.direction = UP;
   this.bullets = [];
-  this.sprite = new Sprite(IposX, IposY, TANKSIZE, TANKSIZE, cvsContext, "tanks.png");
+  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "tanks.png");
 
   ////MEMBER FUNCTIONS////
   //Update tank
@@ -18,6 +18,8 @@ function Tank(IposX,IposY,Icolor){
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
+
+    this.sprite.updateSprite(this.posX, this.posY, this.direction);
   }
   //Move
   this.move = function(Idirection){
@@ -36,23 +38,21 @@ function Tank(IposX,IposY,Icolor){
     } else if(Idirection == LEFT){
       this.posX += -moveAmt;
     }
-
-    this.sprite.update(this.posX, this.posY);
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
     //Up
     if(this.direction == UP){
-      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY-TANKSIZE/2-8,0,-bulletSpeed);
+      this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY,0,-bulletSpeed);
     //Right
     } else if(this.direction == RIGHT){
-      this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE/2+8,this.posY,bulletSpeed,0);
+      this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE,this.posY + TANKSIZE / 2,bulletSpeed,0);
     //Down
     } else if(this.direction == DOWN){
-      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY+TANKSIZE/2+8,0,bulletSpeed);
+      this.bullets[this.bullets.length] = new Bullet(this.posX + TANKSIZE / 2,this.posY+TANKSIZE,0,bulletSpeed);
     //Left
     } else if(this.direction == LEFT){
-      this.bullets[this.bullets.length] = new Bullet(this.posX-TANKSIZE/2-8,this.posY,-bulletSpeed,0);
+      this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY + TANKSIZE / 2,-bulletSpeed,0);
     }
   }
   //Delete bullet

@@ -1,26 +1,35 @@
-function Sprite(posX, posY, width, height, context, src)
+function Sprite(x, y, dir, w, h, ctx, src)
 {
-	this.posX = posY;
-	this.posY = posX;
-	this.width = width;
-	this.height = height;
-	this.context = context;
+	this.posX = x;
+	this.posY = y;
+	this.direction = dir;
+	this.width = w;
+	this.height = h;
+	this.context = ctx;
 
 	this.srcImg = new Image();
 	this.srcImg.src = src;
 
 	this.currFrame = 0;
 
-	this.update = function(posX, posY)
+	this.updateSprite = function(newX, newY, newDir)
 	{
-		this.posX = posX;
-		this.posY = posY;
+		this.posX = newX;
+		this.posY = newY;
+		this.direction = newDir;
+  		console.log(this.posX + " " + this.posY);
 
-		//console.log(this.currFrame);
-		console.log(this.currFrame * this.width);
-		context.drawImage(this.srcImg, this.currFrame * this.width, 0, 
-						  this.width, this.height, this.posX, this.posY, 
-						  this.width, this.height);
+  		//rotating entire canvas to rotate tank cuz apparently theres no better way
+  		this.context.translate(this.posX + this.width / 2, this.posY + this.height / 2);
+  		this.context.rotate(this.direction * Math.PI / 180);
+
+		this.context.drawImage(this.srcImg, this.currFrame * this.width, 0, 
+							   this.width, this.height, -this.width / 2, -this.height / 2, 
+							   this.width, this.height);
+
+		this.context.rotate(-this.direction * Math.PI / 180);
+		this.context.translate(-this.posX - this.width / 2, -this.posY - this.height / 2);
+		
 
 		if ((this.currFrame + 2) * this.width >= this.srcImg.width)
 			this.currFrame = 0;
