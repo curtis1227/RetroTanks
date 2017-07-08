@@ -11,6 +11,7 @@ function Tank(IposX,IposY,Icolor){
   this.bullets = [];
   this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "src/tanks.png");
   this.shootCooldown = 0;
+  this.score = 0;
 
   ////MEMBER FUNCTIONS////
   //Update tank
