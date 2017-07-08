@@ -2,15 +2,15 @@ var moveAmt = 2;
 var shootDelay = 45;
 var bulletSpeed = 10;
 
-function Tank(IposX,IposY,Icolor){
+function Tank(IposX,IposY,Iscr){
   //Initialize vars
   this.posX = IposX;
   this.posY = IposY;
-  this.color = Icolor;
   this.direction = UP;
   this.bullets = [];
-  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, "src/tanks.png");
+  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, Iscr);
   this.shootCooldown = 0;
+  this.score = 0;
 
   ////MEMBER FUNCTIONS////
   //Update tank
