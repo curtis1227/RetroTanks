@@ -29,7 +29,15 @@ server.listen(port, serverStart);
 function serverStart()
 {
 	console.log("Server Started on Port: " + port);
-	setInterval(update, 1000/framesPerSecond);
+	setInterval(update, 1000/FPS);
+}
+
+//updates rooms, games, players
+function update()
+{
+	updateRooms();
+	updateGames();
+	updatePlayers();
 }
 
 io.on("connection", onConnection)
