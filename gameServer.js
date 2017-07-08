@@ -1,9 +1,8 @@
 const FPS = 30;
-const port = 8888;
+const PORT = 8888;
+const PLAYERSPERROOM = 2;
 var players = [];
 var numPlayers = 0;
-
-const PLAYERSPERROOM = 2;
 
 //imported libraries
 var http = require("http");
@@ -24,11 +23,12 @@ var notFullRooms = new linkedList();
 
 app.use(express.static(__dirname + "/client"));
 
-server.listen(port, serverStart);
+server.listen(PORT, serverStart);
 
 function serverStart()
 {
-	console.log("Server Started on Port: " + port);
+	console.log("Server Started on Port: " + PORT);
+  //Set update per time
 	setInterval(update, 1000/FPS);
 }
 

@@ -9,7 +9,7 @@ const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;*/
 
-window.onload = function() {
+/*window.onload = function() {
   //Initialize variables
   cvs = document.getElementById('gameCanvas');
   cvsContext = cvs.getContext('2d');
@@ -33,7 +33,7 @@ window.onload = function() {
   //Update per time
   var framesPerSecond = 30;
   setInterval(update, 1000/framesPerSecond);
-}
+}*/
 
 //multiple key press
 
