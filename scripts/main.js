@@ -77,8 +77,8 @@ function update() {
           //Delete the bullet
           tanks[i].deleteBullet(j);
           //Move tank off screen
-          tanks[k].posX = -100;
-          tanks[k].posY = -100;
+          tanks[k].posX = -150;
+          tanks[k].posY = -150;
         }
       }
     }
