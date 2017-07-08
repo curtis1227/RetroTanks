@@ -12,7 +12,7 @@ var io = socketio(server);
 io.on("connection", onConnection);
 
 
-app.use(express.static(__dirname));
+app.use(express.static(__dirname + "/client"));
 
 server.listen(port, function() {console.log("Server Started on Port: " + port);});
 
