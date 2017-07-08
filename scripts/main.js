@@ -27,8 +27,8 @@ window.onload = function() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
   //Test tank
-  tanks[0] = new Tank(cvs.width/2,cvs.height/2,'blue');
-  tanks[1] = new Tank(200,100,'red');
+  tanks[0] = new Tank(cvs.width/2,cvs.height/2,"src/green_tank.png");
+  tanks[1] = new Tank(200,100,"src/blue_tank.png");
 
   //Update per time
   var framesPerSecond = 30;
