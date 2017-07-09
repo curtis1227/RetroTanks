@@ -11,6 +11,7 @@ const FPS = 30;
 const PLAYERSPERROOM = 2;
 const ID = 0;
 const NUMINROOM = 1;
+const GAME = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -48,12 +49,29 @@ function serverStart()
 	setInterval(update, 1000/FPS);
 }
 
-//updates rooms, games, players
+//starts and updates games in each room
 function update()
 {
-	// updateRooms();
-	// updateGames();
-	// updatePlayers();
+	for (var [roomID, room] of fullRooms)
+	{
+		if (!room[GAME])
+		{
+			room[GAME] = new TankGame();
+		}
+
+		updateGame(room);
+	}
+}
+
+//update game within a room
+function updateGame(room)
+{
+	var roomID = room[ID];
+
+	//TODO: update game logic
+
+	//update players
+	io.to(roomID).emit("gamestate", room[GAME].gamestate);
 }
 
 //listens for client and executes accordingly
@@ -128,6 +146,7 @@ function createRoom()
 }
 
 //removes client from room
+//TODO: stop game in room if happening
 function leaveRoom(socket)
 {
 	var roomID = socket.room;

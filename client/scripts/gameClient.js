@@ -28,6 +28,12 @@ window.onload = function() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 }
 
+//receive gamestate information from server
+socket.on("gamestate", function(gamestate)
+{
+	//TODO: draw gamestate logic
+});
+
 window.onkeydown = window.onkeyup = function(e)
 {
   console.log(e.keyCode);
