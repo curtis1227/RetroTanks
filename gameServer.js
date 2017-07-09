@@ -2,6 +2,9 @@
 const PORT = 7777;
 const FPS = 30;
 const PLAYERSPERROOM = 2;
+const ID = 0;
+const NUMINROOM = 1;
+
 var players = [];
 var numPlayers = 0;
 ////VARIABLES FOR GAMES////
@@ -85,7 +88,34 @@ function onConnection(socket)
 //puts client into a room
 function joinRoom(socket)
 {
+	if (notFullRooms.head == null)
+	{
+		//console.log("creating new room!");
+		createRoom();
+	}
 
+	var roomID = notFullRooms.head[ID];
+	socket.join(roomID);
+	socket.room = roomID;
+	console.log(socket.room);
+
+	io.to(roomID).emit("msg", socket.id + " has joined the room.");
+	console.log(socket.id + " has joined room " + roomID);
+
+	if (notFullRooms.head[NUMINROOM]++ >= PLAYERSPERROOM)
+	{
+		//move room to fullRooms
+	}
+}
+
+//puts new room into queue
+function createRoom()
+{
+	var newRoom = [];
+	notFullRooms.push(newRoom);
+	notFullRooms.head[ID] = UUID();
+	notFullRooms.head[NUMINROOM] = 0;
+	//console.log("room num players: " + notFullRooms.head[NUMINROOM]);
 }
 
 //finds player in player list by id
