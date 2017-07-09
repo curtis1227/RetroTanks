@@ -4,7 +4,6 @@ var express = require("express");
 var socketio = require("socket.io");
 var UUID = require("uuid");
 var linkedList = require("linkedlist");
-var hashTable = require("hashtable");
 
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
@@ -13,13 +12,13 @@ const PLAYERSPERROOM = 2;
 const ID = 0;
 const NUMINROOM = 1;
 
-var players = new hashTable();
+var players = new Map();
 var numPlayers = 0;
 
 //Invariants:
 //fullRooms only has fully occupied rooms
 //notFullRooms only has rooms that are neither full nor empty
-var fullRooms = new hashTable();
+var fullRooms = new Map();
 var notFullRooms = new linkedList();
 
 ////VARIABLES FOR GAMES////
@@ -61,20 +60,33 @@ function update()
 io.on("connection", onConnection)
 function onConnection(socket)
 {
-	players.put(socket.id, socket);
+	//client connect
+	players.set(socket.id, socket);
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
-
-	//put players into rooms
 	joinRoom(socket);
 
 	//client disconnect
 	socket.on("disconnect", function()
 	{
 		numPlayers--;
-		players.remove(socket.id);
+		players.delete(socket.id);
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
+
+		var roomID = socket.room;
+		if (fullRooms.has(roomID))
+		{
+			//move full room to not full room queue
+			var numInRoom = --fullRooms.get(roomID)[NUMINROOM];
+			notFullRooms.push(fullRooms.get(roomID));
+			fullRooms.delete(roomID);
+			console.log("Room " + roomID + " no longer full! numInRoom: " + numInRoom);
+		}
+		else
+		{
+			//update room in not full room queue
+		}
 	});
 
 	//listen for tank movement
@@ -102,14 +114,16 @@ function joinRoom(socket)
 	var roomID = notFullRooms.head[ID];
 	socket.join(roomID);
 	socket.room = roomID;
-	console.log(socket.room);
 
 	io.to(roomID).emit("msg", socket.id + " has joined the room.");
-	console.log(socket.id + " has joined room " + roomID);
+	console.log("Player " + socket.id + " has joined room " + roomID);
 
-	if (notFullRooms.head[NUMINROOM]++ >= PLAYERSPERROOM)
+	//move room from notFullRooms to fullRooms
+	if (++notFullRooms.head[NUMINROOM] >= PLAYERSPERROOM)
 	{
-		//move room to fullRooms
+		console.log("Room " + notFullRooms.head[ID] + " full with " + notFullRooms.head[NUMINROOM] + " players");
+		fullRooms.set(notFullRooms.head[ID], notFullRooms.head);
+		notFullRooms.pop();
 	}
 }
 
@@ -121,6 +135,7 @@ function createRoom()
 	notFullRooms.head[ID] = UUID();
 	notFullRooms.head[NUMINROOM] = 0;
 	//console.log("room num players: " + notFullRooms.head[NUMINROOM]);
+	console.log("Room " + notFullRooms.head[ID] + " Created!");
 }
 
 //test function

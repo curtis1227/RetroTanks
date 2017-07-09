@@ -54,3 +54,13 @@ function chooseActions()
   if (keyMap[SPACE])
    socket.emit("shootBullet",);
 }
+
+socket.on("msg", function(text)
+{
+	console.log(text);
+});
+
+socket.on("disconnect", function(text)
+{
+	console.log("Server Disconnected: " + text);
+});
