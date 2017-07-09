@@ -1,24 +1,3 @@
-////VARIABLES FOR SERVER////
-const PORT = 7777;
-const FPS = 30;
-const PLAYERSPERROOM = 2;
-const ID = 0;
-const NUMINROOM = 1;
-
-var players = [];
-var numPlayers = 0;
-//Invariants:
-//fullRooms only has fully occupied rooms
-//notFullRooms only has rooms that are neither full nor empty
-var fullRooms = new linkedList();
-var notFullRooms = new linkedList();
-
-////VARIABLES FOR GAMES////
-const TANKSIZE = 84;
-const BULLETSIZE = 4;
-const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
-const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
-
 ////imported libraries////
 var http = require("http");
 var express = require("express");
@@ -26,6 +5,28 @@ var socketio = require("socket.io");
 var UUID = require("uuid");
 var linkedList = require("linkedlist");
 var hashTable = require("hashtable");
+
+////VARIABLES FOR SERVER////
+const PORT = 7777;
+const FPS = 30;
+const PLAYERSPERROOM = 2;
+const ID = 0;
+const NUMINROOM = 1;
+
+var players = new hashTable();
+var numPlayers = 0;
+
+//Invariants:
+//fullRooms only has fully occupied rooms
+//notFullRooms only has rooms that are neither full nor empty
+var fullRooms = new hashTable();
+var notFullRooms = new linkedList();
+
+////VARIABLES FOR GAMES////
+const TANKSIZE = 84;
+const BULLETSIZE = 4;
+const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
+const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
 ////TankGame object////
 function TankGame(){
@@ -60,7 +61,7 @@ function update()
 io.on("connection", onConnection)
 function onConnection(socket)
 {
-	players[numPlayers] = socket;
+	players.put(socket.id, socket);
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
@@ -71,7 +72,7 @@ function onConnection(socket)
 	socket.on("disconnect", function()
 	{
 		numPlayers--;
-		players.splice(findPlayerIndex(socket), 1);
+		players.remove(socket.id);
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
 	});
@@ -120,17 +121,6 @@ function createRoom()
 	notFullRooms.head[ID] = UUID();
 	notFullRooms.head[NUMINROOM] = 0;
 	//console.log("room num players: " + notFullRooms.head[NUMINROOM]);
-}
-
-//finds player in player list by id
-function findPlayerIndex(socket)
-{
-	for (var i = 0; i < players.length; i++) 
-	{
-		if (players[i].id == socket.id)
-			return i;
-	}
-	return -1;
 }
 
 //test function
