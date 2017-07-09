@@ -32,8 +32,8 @@ window.onkeydown = window.onkeyup = function(e)
 {
   console.log(e.keyCode);
   keyMap[e.keyCode]  = (e.type == "keydown");
-  if (e.type != "keyup" && e.keyCode != SPACE)
-    keyPress = e.keyCode;
+  if (e.type != "keyup" && e.keyCode != SPACE) {keyPress = e.keyCode;}
+  chooseActions();
 }
 
 function chooseActions()

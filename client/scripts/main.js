@@ -96,7 +96,7 @@ function update() {
     }
   }
 
-  chooseActions();
+  //chooseActions();
 
   //Update canvas
   cvsContext.fillStyle = 'black';
