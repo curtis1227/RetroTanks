@@ -1,5 +1,5 @@
 ////VARIABLES FOR SERVER////
-const PORT = 8888;
+const PORT = 7777;
 const FPS = 30;
 const PLAYERSPERROOM = 2;
 var players = [];
