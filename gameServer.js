@@ -145,6 +145,21 @@ function leaveRoom(socket)
 	else
 	{
 		//update room in not full room queue
+		while (notFullRooms.next())
+		{
+			if (notFullRooms.current[ID] == roomID)
+			{
+				console.log("Room " + roomID + " updated to have " + (--notFullRooms.current[NUMINROOM]) + " players");
+				if (notFullRooms.current[NUMINROOM] <= 0)
+				{
+					notFullRooms.removeCurrent();
+					console.log("Room " + roomID + " deleted");
+				}
+				notFullRooms.resetCursor();
+				return;
+			}
+		}
+		console.log("ERROR: Room " + roomID + " not found!");
 	}
 }
 
