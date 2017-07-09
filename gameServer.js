@@ -64,6 +64,7 @@ function onConnection(socket)
 	players.set(socket.id, socket);
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
+
 	joinRoom(socket);
 
 	//client disconnect
@@ -74,19 +75,7 @@ function onConnection(socket)
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
 
-		var roomID = socket.room;
-		if (fullRooms.has(roomID))
-		{
-			//move full room to not full room queue
-			var numInRoom = --fullRooms.get(roomID)[NUMINROOM];
-			notFullRooms.push(fullRooms.get(roomID));
-			fullRooms.delete(roomID);
-			console.log("Room " + roomID + " no longer full! numInRoom: " + numInRoom);
-		}
-		else
-		{
-			//update room in not full room queue
-		}
+		leaveRoom(socket);
 	});
 
 	//listen for tank movement
@@ -136,6 +125,27 @@ function createRoom()
 	notFullRooms.head[NUMINROOM] = 0;
 	//console.log("room num players: " + notFullRooms.head[NUMINROOM]);
 	console.log("Room " + notFullRooms.head[ID] + " Created!");
+}
+
+//removes client from room
+function leaveRoom(socket)
+{
+	var roomID = socket.room;
+	io.to(roomID).emit("msg", socket.id + " has left the room.");
+	console.log(socket.id + " has left room " + roomID);
+
+	if (fullRooms.has(roomID))
+	{
+		//move full room to not full room queue
+		var numInRoom = --fullRooms.get(roomID)[NUMINROOM];
+		notFullRooms.push(fullRooms.get(roomID));
+		fullRooms.delete(roomID);
+		console.log("Room " + roomID + " no longer full! numInRoom: " + numInRoom);
+	}
+	else
+	{
+		//update room in not full room queue
+	}
 }
 
 //test function
