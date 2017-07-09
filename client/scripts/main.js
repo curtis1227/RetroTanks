@@ -24,12 +24,12 @@ const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;*/
 
   //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
-  cvsContext.fillRect(0,0,cvs.width,cvs.height);
-
+  cvsContext.fillRect(0,0,cvs.width,cvs.height);*/
+  
   //Test tank
   tanks[0] = new Tank(cvs.width/2,cvs.height/2,"src/green_tank.png");
   tanks[1] = new Tank(200,100,"src/blue_tank.png");
-
+  /*
   //Update per time
   var framesPerSecond = 30;
   setInterval(update, 1000/framesPerSecond);
@@ -37,15 +37,15 @@ const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;*/
 
 //multiple key press
 
-window.onkeydown = window.onkeyup = function(e)
+/*window.onkeydown = window.onkeyup = function(e)
 {
   console.log(e.keyCode);
   keyMap[e.keyCode]  = (e.type == "keydown");
   if (e.type != "keyup" && e.keyCode != SPACE)
     keyPress = e.keyCode;
-}
+}*/
 
-function chooseActions()
+/*function chooseActions()
 {
   //move up function
   if (keyPress == W && keyMap[W])
@@ -66,7 +66,7 @@ function chooseActions()
   //shoot function
   if (keyMap[SPACE])
     tanks[0].fireBullet();
-}
+}*/
 
 function update() {
 

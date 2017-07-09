@@ -1,3 +1,7 @@
+const TANKSIZE = 84;
+const BULLETSIZE = 4;
+const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
+const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 var socket = io();
 var cvs, cvsContext;
 var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
@@ -5,17 +9,13 @@ var keyPress;
 var keyMap = {};
 var tankSprites = [];
 var bulletSprites = [];
-const TANKSIZE = 84;
-const BULLETSIZE = 4;
-const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
-const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
 window.onload = function() {
-  //Initialize variables
+  //Initialize canvas
   cvs = document.getElementById('gameCanvas');
   cvsContext = cvs.getContext('2d');
 
-  //Make game table
+  //Initialize game table
   gameTable = document.getElementById('gameTable');
   scoreRow = gameTable.insertRow(0);
   scoreNameCell = scoreRow.insertCell(0);
@@ -28,9 +28,29 @@ window.onload = function() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 }
 
-var text = document.getElementById("test");
-
-text.onmouseover = function()
+window.onkeydown = window.onkeyup = function(e)
 {
-	socket.emit("test", );
+  console.log(e.keyCode);
+  keyMap[e.keyCode]  = (e.type == "keydown");
+  if (e.type != "keyup" && e.keyCode != SPACE)
+    keyPress = e.keyCode;
+}
+
+function chooseActions()
+{
+  //move up function
+  if (keyPress == W && keyMap[W])
+    socket.emit("moveTank", UP);
+  //move right function
+  else if (keyPress == D && keyMap[D])
+    socket.emit("moveTank", RIGHT);
+  //move down function
+  else if (keyPress == S && keyMap[S])
+    socket.emit("moveTank", DOWN);
+  //move left function
+  else if (keyPress == A && keyMap[A])
+    socket.emit("moveTank", LEFT);
+  //shoot function
+  if (keyMap[SPACE])
+   socket.emit("shootBullet",);
 }
