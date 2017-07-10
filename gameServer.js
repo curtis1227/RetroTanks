@@ -30,7 +30,15 @@ const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
 ////TankGame object////
 function TankGame(){
+
+	this.numTanks = 0
 	var tanks = [];
+
+	this.addTank = function()
+	{
+		
+		numTanks++;
+	}
 }
 
 ////setting up server////
@@ -54,9 +62,11 @@ function update()
 {
 	for (var [roomID, room] of fullRooms)
 	{
+		//if room's game doesn't exist, start new game
 		if (!room[GAME])
 		{
 			room[GAME] = new TankGame();
+			console.log("Game in Room " + room[ID] + " started");
 		}
 
 		updateGame(room);
@@ -146,7 +156,6 @@ function createRoom()
 }
 
 //removes client from room
-//TODO: stop game in room if happening
 function leaveRoom(socket)
 {
 	var roomID = socket.room;
@@ -155,6 +164,8 @@ function leaveRoom(socket)
 
 	if (fullRooms.has(roomID))
 	{
+		stopGame(fullRooms.get(roomID));
+
 		//move full room to not full room queue
 		var numInRoom = --fullRooms.get(roomID)[NUMINROOM];
 		notFullRooms.push(fullRooms.get(roomID));
@@ -180,6 +191,14 @@ function leaveRoom(socket)
 		}
 		console.log("ERROR: Room " + roomID + " not found!");
 	}
+}
+
+//stops game in room
+function stopGame(room)
+{
+	//can expand this more later
+	delete room[GAME];
+	console.log("Game in Room " + room[ID] + " ended");
 }
 
 //test function
