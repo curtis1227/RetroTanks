@@ -1,3 +1,4 @@
+/*
 var moveAmt = 2;
 var shootDelay = 45;
 var bulletSpeed = 10;
@@ -87,3 +88,4 @@ function Tank(IposX,IposY,Iscr){
   //Draw tank for the 1st time
   this.update();
 }
+*/

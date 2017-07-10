@@ -29,7 +29,7 @@ window.onload = function() {
 }
 
 //receive gamestate information from server
-socket.on("gamestate", function(gamestate)
+socket.on("gameState", function(gamestate)
 {
 	//TODO: draw gamestate logic
 });

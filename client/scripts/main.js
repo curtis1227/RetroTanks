@@ -68,6 +68,7 @@ const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;*/
     tanks[0].fireBullet();
 }*/
 
+/*
 function update() {
 
   //Check bullets collision with tanks
@@ -95,6 +96,7 @@ function update() {
       }
     }
   }
+  */
 
   //chooseActions();
 
@@ -102,8 +104,10 @@ function update() {
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 
+  /*
   //Update tanks and bullets
   for(var i = 0;i<tanks.length;i++){
     tanks[i].update();
   }
+  */
 }
