@@ -9,9 +9,6 @@ var linkedList = require("linkedlist");
 const PORT = 7777;
 const FPS = 30;
 const PLAYERSPERROOM = 2;
-const ID = 0;
-const NUMINROOM = 1;
-const GAME = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -23,6 +20,8 @@ var fullRooms = new Map();
 var notFullRooms = new linkedList();
 
 ////VARIABLES FOR GAMES////
+const CVSWIDTH = 800;
+const CVSHEIGHT = 600;
 const TANKSIZE = 84;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
@@ -51,7 +50,7 @@ function serverStart()
 //updates all rooms
 function updateRooms()
 {
-	for (var [roomID, room] of fullRooms)
+	for (var room of fullRooms.values())
 	{
 		updateGame(room);
 	}
@@ -60,13 +59,11 @@ function updateRooms()
 //update game within a room
 function updateGame(room)
 {
-	var roomID = room[ID];
-
 	//update game
-	room[GAME].update();
+	room.game.update();
 
 	//update players
-	io.to(roomID).emit("gameState", room[GAME].gameState);
+	io.to(room.id).emit("gamestate", room.game.tanks);
 }
 
 /**********************/
@@ -95,16 +92,13 @@ function onConnection(socket)
 		leaveRoom(socket);
 	});
 
-	//listen for tank movement
-	socket.on("moveTank", function(Idirection){
-		/*PLACEHOLDER FOR TANK MOVE COMMAND*/
-		console.log("Move Player " + socket.id + "'s tank: " + Idirection);
-	});
-
-	//listen for bullet shoot
-	socket.on("shootBullet", function(){
-		/*PLACEHOLDER FOR SHOOT BULLET COMMAND*/
-		console.log("Player " + socket.id + " shot bullet");
+	//listen for player move (tank move or shoot)
+	socket.on("move", function(move){
+		if (fullRooms.has(socket.room))
+		{
+			fullRooms.get(socket.room).game.playerMove(socket.id, move);
+			//console.log("Player " + socket.id + " moved: " + move);
+		}
 	});
 }
 
@@ -118,22 +112,25 @@ function joinRoom(socket)
 		createRoom();
 	}
 
-	var roomID = notFullRooms.head[ID];
-	socket.join(roomID);
-	socket.room = roomID;
+	var room = notFullRooms.head;
+	socket.join(room.id);
+	socket.room = room.id;
 
-	io.to(roomID).emit("msg", socket.id + " has joined the room.");
-	console.log("Player " + socket.id + " has joined room " + roomID);
+	room.playersInRoom.set(socket.id, socket);
+
+	io.to(room.id).emit("msg", socket.id + " has joined the room.");
+	console.log("Player " + socket.id + " has joined room " + room.id);
 
 	//move room from notFullRooms to fullRooms
-	if (++notFullRooms.head[NUMINROOM] >= PLAYERSPERROOM)
+	if (++room.numInRoom >= PLAYERSPERROOM)
 	{
-		console.log("Room " + notFullRooms.head[ID] + " full with " + notFullRooms.head[NUMINROOM] + " players");
-		
-		notFullRooms.head[GAME] = new TankGame(notFullRooms.head[NUMINROOM]);
-		console.log("Game in Room " + room[ID] + " started");
+		console.log("Room " + room.id + " full with " + room.numInRoom + " players");
 
-		fullRooms.set(notFullRooms.head[ID], notFullRooms.head);
+		room.game = new TankGame(room.playersInRoom);
+		io.to(room.id).emit("gamestart", room.game.tanks);
+		console.log("Game in Room " + room.id + " started");
+
+		fullRooms.set(room.id, room);
 		notFullRooms.pop();
 	}
 }
@@ -141,12 +138,12 @@ function joinRoom(socket)
 //puts new room into queue
 function createRoom()
 {
-	var newRoom = [];
+	var newRoom = new Room();
+	newRoom.id = UUID();
+	newRoom.numInRoom = 0;
+	console.log("Room " + newRoom.id + " Created!");
+
 	notFullRooms.push(newRoom);
-	notFullRooms.head[ID] = UUID();
-	notFullRooms.head[NUMINROOM] = 0;
-	//console.log("room num players: " + notFullRooms.head[NUMINROOM]);
-	console.log("Room " + notFullRooms.head[ID] + " Created!");
 }
 
 //removes client from room
@@ -158,23 +155,36 @@ function leaveRoom(socket)
 
 	if (fullRooms.has(roomID))
 	{
-		stopGame(fullRooms.get(roomID));
+		var room = fullRooms.get(roomID);
+		stopGame(room);
+		console.log(room.game);
 
 		//move full room to not full room queue
-		var numInRoom = --fullRooms.get(roomID)[NUMINROOM];
-		notFullRooms.push(fullRooms.get(roomID));
+		--room.numInRoom;
+		room.playersInRoom.delete(socket.id);
+
+		for (var i of room.playersInRoom.values())
+		{
+			console.log(i.id);
+		}
+
+		//console.log(room.playersInRoom.has(roomID));
+
+		notFullRooms.push(room);
 		fullRooms.delete(roomID);
-		console.log("Room " + roomID + " no longer full! numInRoom: " + numInRoom);
+		console.log("Room " + roomID + " no longer full! numInRoom: " + room.numInRoom);
 	}
 	else
 	{
 		//update room in not full room queue
 		while (notFullRooms.next())
 		{
-			if (notFullRooms.current[ID] == roomID)
+			if (notFullRooms.current.id == roomID)
 			{
-				console.log("Room " + roomID + " updated to have " + (--notFullRooms.current[NUMINROOM]) + " players");
-				if (notFullRooms.current[NUMINROOM] <= 0)
+				--notFullRooms.current.numInRoom;
+				notFullRooms.current.playersInRoom.delete(roomID);
+				console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
+				if (notFullRooms.current.numInRoom <= 0)
 				{
 					notFullRooms.removeCurrent();
 					console.log("Room " + roomID + " deleted");
@@ -191,8 +201,10 @@ function leaveRoom(socket)
 function stopGame(room)
 {
 	//can expand this more later
-	delete room[GAME];
-	console.log("Game in Room " + room[ID] + " ended");
+	room.game = undefined;
+	delete room.game;
+	io.to(room.id).emit("gameend");
+	console.log("Game in Room " + room.id + " ended");
 }
 
 //test function
@@ -201,59 +213,94 @@ function test()
 	console.log("test");
 }
 
+function Room()
+{
+	this.id = -1;
+	this.numInRoom = -1;
+	this.game = undefined;
+	this.playersInRoom = new Map();
+}
+
 /*************/
 /**GAME CODE**/
 /*************/
 
 ////TankGame object////
-function TankGame(numTanks){
+function TankGame(playersInRoom){
 
-	this.gamestate = [];
-	this.numTanks = numTanks;
+	this.numTanks = 0;
+	this.tanks = undefined;
 	this.tanks = [];
+
+	for (var socket of playersInRoom.values())
+	{
+		this.tanks[this.numTanks] = new Tank(socket.id);
+		this.numTanks++;
+	}
+
+	//update player's tank with move
+	this.playerMove = function(playerID, move)
+	{
+		for (var i = 0; i < this.numTanks; i++)
+		{
+			if (this.tanks[i].id == playerID)
+			{
+				if (move == "shoot")
+				{
+					this.tanks[i].fireBullet();
+				}
+				else
+				{
+					this.tanks[i].move(move);
+				}
+			}
+		}
+	}
 
 	this.update = function()
 	{
 		//Check bullets collision with tanks
-	  	for(var i = 0;i<tanks.length;i++){
-	    	for(var j = 0;j<tanks[i].bullets.length;j++){
-	      		for(var k = 0;k<tanks.length;k++){
-		        //Skip the tank that fired
-		        if(i == k) {continue;}
+	  	for(var i = 0;i<this.tanks.length;i++){
+	    	for(var j = 0;j<this.tanks[i].bullets.length;j++){
+	      		for(var k = 0;k<this.tanks.length;k++){
+			        //Skip the tank that fired
+			        if(i == k) {continue;}
 
-		        var bulletX = tanks[i].bullets[j].posX;
-		        var bulletY = tanks[i].bullets[j].posY;
-		        //If collided
-		        if(bulletX < tanks[k].posX + TANKSIZE/2 &&
-		           bulletX > tanks[k].posX - TANKSIZE/2 &&
-		           bulletY < tanks[k].posY + TANKSIZE/2 &&
-		           bulletY > tanks[k].posY - TANKSIZE/2) {
-			        //Delete the bullet and update score
-			        tanks[i].deleteBullet(j);
-			        tanks[i].score += 1;
+			        var bulletX = this.tanks[i].bullets[j].posX;
+			        var bulletY = this.tanks[i].bullets[j].posY;
+			        //If collided
+			        if(bulletX < this.tanks[k].posX + TANKSIZE/2 &&
+			           bulletX > this.tanks[k].posX - TANKSIZE/2 &&
+			           bulletY < this.tanks[k].posY + TANKSIZE/2 &&
+			           bulletY > this.tanks[k].posY - TANKSIZE/2) {
+				        //Delete the bullet and update score
+				        this.tanks[i].deleteBullet(j);
+				        this.tanks[i].score += 1;
 
-			        //Move tank off screen
-			        tanks[k].posX = -100;
-			        tanks[k].posY = -100;
+				        //Move tank off screen
+				        this.tanks[k].posX = -100;
+				        this.tanks[k].posY = -100;
+				    }
 		        }
 	      	}
 	    }
 
 	    //Update tanks and bullets
-  		for(var i = 0;i<tanks.length;i++){
-    		tanks[i].update(); //Move this inside above for loop?
+  		for(var i = 0;i<this.tanks.length;i++){
+    		this.tanks[i].update(); //Move this inside above for loop?
   		}
 	}
 }
 
 //Tank object
-function Tank(IposX,IposY,Iscr){
+function Tank(playerID){
   //Initialize vars
-  this.posX = IposX;
-  this.posY = IposY;
+  this.id = playerID;
+  //TODO change tank starting positions
+  this.posX = CVSWIDTH / 2;
+  this.posY = CVSHEIGHT / 2;
   this.direction = UP;
   this.bullets = [];
-  this.sprite = new Sprite(IposX, IposY, 0, TANKSIZE, TANKSIZE, cvsContext, Iscr);
   this.shootCooldown = 0;
   this.score = 0;
 
@@ -264,9 +311,6 @@ function Tank(IposX,IposY,Iscr){
       this.shootCooldown = 0;
     //console.log(this.shootCooldown);
     
-    //update sprites
-    this.sprite.updateSprite(this.posX, this.posY, this.direction);
-    
     //Update bullets
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
@@ -275,6 +319,7 @@ function Tank(IposX,IposY,Iscr){
   }
   //Move
   this.move = function(Idirection){
+  	//console.log("Player " + this.id + "'s Moved!");
     //Set direction
     this.direction = Idirection;
     //Up
@@ -294,9 +339,9 @@ function Tank(IposX,IposY,Iscr){
     //bounds of screen
     if (this.posY - TANKSIZE / 2 < 0)
       this.posY += moveAmt;
-    else if (this.posX + TANKSIZE / 2 >= cvs.width)
+    else if (this.posX + TANKSIZE / 2 >= CVSWIDTH)
       this.posX += -moveAmt;
-    else if (this.posY + TANKSIZE / 2 >= cvs.height)
+    else if (this.posY + TANKSIZE / 2 >= CVSHEIGHT)
       this.posY += -moveAmt;
     else if (this.posX - TANKSIZE / 2 < 0)
       this.posX += moveAmt;
@@ -305,6 +350,7 @@ function Tank(IposX,IposY,Iscr){
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
+  	//console.log("Player " + this.id + "'s Tank Shot A Bullet!");
     if (this.shootCooldown <= 0)
     {
       //Up
@@ -330,5 +376,28 @@ function Tank(IposX,IposY,Iscr){
   }
 
   //Draw tank for the 1st time
+  this.update();
+
+  console.log("New Tank created for Player " + this.id);
+}
+
+/*****************/
+/**Bullet Object**/
+/*****************/
+function Bullet(IposX,IposY,IspeedX,IspeedY){
+  //Initialize vars
+  this.posX = IposX;
+  this.posY = IposY;
+  this.speedX = IspeedX;
+  this.speedY = IspeedY;
+
+  ////MEMBER FUNCTIONS////
+  //Update bullet
+  this.update = function(){
+    this.posX += this.speedX;
+    this.posY += this.speedY;
+  }
+
+  //Draw bullet for the 1st time
   this.update();
 }

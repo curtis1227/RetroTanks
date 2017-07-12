@@ -1,3 +1,4 @@
+/*
 function Bullet(IposX,IposY,IspeedX,IspeedY){
   //Initialize vars
   this.posX = IposX;
@@ -18,3 +19,4 @@ function Bullet(IposX,IposY,IspeedX,IspeedY){
   //Draw bullet for the 1st time
   this.update();
 }
+*/

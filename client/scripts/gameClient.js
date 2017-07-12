@@ -6,9 +6,8 @@ var socket = io();
 var cvs, cvsContext;
 var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
 var keyPress;
-var keyMap = {};
+var keyMap = [];
 var tankSprites = [];
-var bulletSprites = [];
 
 window.onload = function() {
   //Initialize canvas
@@ -28,45 +27,90 @@ window.onload = function() {
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
 }
 
-//receive gamestate information from server
-socket.on("gameState", function(gamestate)
+//get number of tanks and create sprites
+socket.on("gamestart", function(tanks)
 {
-	//TODO: draw gamestate logic
+    console.log("Game Started!");
+    for (var i = 0; i < tanks.length; i++)
+    {
+        var color = "blue";
+        if (tanks[i].id == socket.id)
+            color = "green";
+
+        tankSprites[i] = new Sprite(tanks[i].posX, tanks[i].posY, tanks[i].direction, 
+                                    TANKSIZE, TANKSIZE, cvsContext, 
+                                    "src/" + color + "_tank.png", true);
+
+        tankSprites[i].updateSprite(tanks[i].posX, tanks[i].posY, tanks[i].direction);
+    }
+});
+
+//receive gamestate information from server
+socket.on("gamestate", function(tanks)
+{
+    chooseActions();
+
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
+
+    for (var i = 0; i < tanks.length; i++)
+    {
+        //console.log("Player " + tanks[i].id + " Tanks Position: " + tanks[i].posX + ", " + tanks[i].posY);
+        tankSprites[i].updateSprite(tanks[i].posX, tanks[i].posY, tanks[i].direction);
+
+        //console.log("Tank " + tanks[i].id + " has " + tanks[i].bullets.length + " bullets");
+        for (var j = 0; j < tanks[i].bullets.length; j++)
+        {
+            //console.log(tanks[i].bullets[j].posX + " " + tanks[i].bullets[j].posY);
+            cvsContext.fillStyle = 'white';
+            cvsContext.fillRect(tanks[i].bullets[j].posX-BULLETSIZE/2,
+                                tanks[i].bullets[j].posY-BULLETSIZE/2,
+                                BULLETSIZE,BULLETSIZE); 
+        }
+    }
+});
+
+//erase board and clean up after game ends
+socket.on("gameend", function()
+{
+    console.log("Game Ended!");
+
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
 });
 
 window.onkeydown = window.onkeyup = function(e)
 {
-  console.log(e.keyCode);
-  keyMap[e.keyCode]  = (e.type == "keydown");
-  if (e.type != "keyup" && e.keyCode != SPACE) {keyPress = e.keyCode;}
-  chooseActions();
+    e = e || event;
+    keyMap[e.keyCode]  = (e.type == "keydown");
+    if (keyMap[e.keyCode] && e.keyCode != SPACE) 
+    {
+        keyPress = e.keyCode;
+    }
+    //console.log("Event Triggered By: " + e.keyCode);
+    //console.log("KeyPress Set To: " + keyPress);
 }
 
 function chooseActions()
 {
   //move up function
   if (keyPress == W && keyMap[W])
-    socket.emit("moveTank", UP);
+    socket.emit("move", UP);
   //move right function
   else if (keyPress == D && keyMap[D])
-    socket.emit("moveTank", RIGHT);
+    socket.emit("move", RIGHT);
   //move down function
   else if (keyPress == S && keyMap[S])
-    socket.emit("moveTank", DOWN);
+    socket.emit("move", DOWN);
   //move left function
   else if (keyPress == A && keyMap[A])
-    socket.emit("moveTank", LEFT);
+    socket.emit("move", LEFT);
   //shoot function
   if (keyMap[SPACE])
-   socket.emit("shootBullet",);
+   socket.emit("move", "shoot");
 }
 
 socket.on("msg", function(text)
 {
-	console.log(text);
-});
-
-socket.on("disconnect", function(text)
-{
-	console.log("Server Disconnected: " + text);
+    console.log(text);
 });

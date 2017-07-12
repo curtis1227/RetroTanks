@@ -101,8 +101,10 @@ function update() {
   //chooseActions();
 
   //Update canvas
+  /*
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);
+  */
 
   /*
   //Update tanks and bullets
