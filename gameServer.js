@@ -27,8 +27,8 @@ const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
-var moveAmt = 2;
-var shootDelay = 45;
+var moveAmt = 50;
+var shootDelay = 0;
 var bulletSpeed = 10;
 
 ////setting up server////
@@ -281,6 +281,12 @@ function TankGame(playersInRoom){
 				        this.tanks[k].posX = -100;
 				        this.tanks[k].posY = -100;
 				    }
+
+				    if (bulletX < 0 || bulletX > CVSWIDTH ||
+				    	bulletY < 0 || bulletY > CVSHEIGHT)
+				    {
+				        this.tanks[i].deleteBullet(j);				    	
+				    }
 		        }
 	      	}
 	    }
@@ -297,8 +303,8 @@ function Tank(playerID){
   //Initialize vars
   this.id = playerID;
   //TODO change tank starting positions
-  this.posX = CVSWIDTH / 2;
-  this.posY = CVSHEIGHT / 2;
+  this.posX = Math.random() * CVSWIDTH;
+  this.posY = Math.random() * CVSHEIGHT;
   this.direction = UP;
   this.bullets = [];
   this.shootCooldown = 0;

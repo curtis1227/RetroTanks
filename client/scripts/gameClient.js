@@ -67,6 +67,9 @@ socket.on("gamestate", function(tanks)
                                 tanks[i].bullets[j].posY-BULLETSIZE/2,
                                 BULLETSIZE,BULLETSIZE); 
         }
+
+        if (tanks[i].id == socket.id)
+            scoreScoreCell.innerHTML = tanks[i].score;
     }
 });
 
