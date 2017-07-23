@@ -27,8 +27,8 @@ const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
-var moveAmt = 50;
-var shootDelay = 0;
+var moveAmt = 5;
+var shootDelay = 10;
 var bulletSpeed = 10;
 
 ////setting up server////
@@ -193,7 +193,7 @@ function leaveRoom(socket)
 				return;
 			}
 		}
-		console.log("ERROR: Room " + roomID + " not found!");
+		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
 	}
 }
 
@@ -207,12 +207,7 @@ function stopGame(room)
 	console.log("Game in Room " + room.id + " ended");
 }
 
-//test function
-function test()
-{
-	console.log("test");
-}
-
+////Room object////
 function Room()
 {
 	this.id = -1;
@@ -243,7 +238,7 @@ function TankGame(playersInRoom){
 	{
 		for (var i = 0; i < this.numTanks; i++)
 		{
-			if (this.tanks[i].id == playerID)
+			if (this.tanks[i].id == playerID && this.tanks[i].dead == false)
 			{
 				if (move == "shoot")
 				{
@@ -280,6 +275,7 @@ function TankGame(playersInRoom){
 				        //Move tank off screen
 				        this.tanks[k].posX = -100;
 				        this.tanks[k].posY = -100;
+				        this.tanks[k].dead = true;
 				    }
 
 				    if (bulletX < 0 || bulletX > CVSWIDTH ||
@@ -309,6 +305,7 @@ function Tank(playerID){
   this.bullets = [];
   this.shootCooldown = 0;
   this.score = 0;
+  this.dead = false;
 
   ////MEMBER FUNCTIONS////
   //Update tank
