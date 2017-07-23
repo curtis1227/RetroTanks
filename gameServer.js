@@ -8,7 +8,7 @@ var linkedList = require("linkedlist");
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 2;
+const PLAYERSPERROOM = 4;
 
 var players = new Map();
 var numPlayers = 0;
