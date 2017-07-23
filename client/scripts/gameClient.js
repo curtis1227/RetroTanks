@@ -35,7 +35,10 @@ socket.on("gamestart", function(tanks)
     {
         var color = "blue";
         if (tanks[i].id == socket.id)
+        {
+            console.log("You are tank " + i);
             color = "green";
+        }
 
         tankSprites[i] = new Sprite(tanks[i].posX, tanks[i].posY, tanks[i].direction, 
                                     TANKSIZE, TANKSIZE, cvsContext, 
