@@ -27,7 +27,6 @@ const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
 
-//CHANGE THESE TO MAKE GAMEPLAY MORE INTERESTING
 var moveAmt = 5;
 var shootDelay = 20;
 var bulletSpeed = 10;
@@ -188,7 +187,7 @@ function leaveRoom(socket)
 				return;
 			}
 		}
-		console.log("ERROR: Room " + roomID + " not found!");
+		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
 	}
 }
 
@@ -201,6 +200,7 @@ function stopGame(room)
 	console.log("Game in Room " + room.id + " ended");
 }
 
+////Room object////
 function Room()
 {
 	this.id = -1;
@@ -231,7 +231,7 @@ function TankGame(playersInRoom){
 	{
 		for (var i = 0; i < this.numTanks; i++)
 		{
-			if (this.tanks[i].id == playerID)
+			if (this.tanks[i].id == playerID && this.tanks[i].dead == false)
 			{
 				if (move == "shoot")
 				{
