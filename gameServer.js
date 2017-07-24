@@ -100,6 +100,9 @@ function onConnection(socket)
 			//console.log("Player " + socket.id + " moved: " + move);
 		}
 	});
+
+	//test message on server from client
+	socket.on("test", test);
 }
 
 //puts client into a room

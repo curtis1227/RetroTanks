@@ -8,10 +8,20 @@ var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
 var keyPress;
 var keyMap = [];
 var tankSprites = [];
+var form = document.getElementById("roomNum");
 
-window.onload = function() {
+form.addEventListener("submit", function(event)
+{
+    event.preventDefault();
+    console.log(form[0].value);
+});
+
+function initCanvas()
+{
   //Initialize canvas
   cvs = document.getElementById('gameCanvas');
+  cvs.width = 800;
+  cvs.height = 600;
   cvsContext = cvs.getContext('2d');
 
   //Initialize game table
@@ -24,7 +34,7 @@ window.onload = function() {
 
   //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
-  cvsContext.fillRect(0,0,cvs.width,cvs.height);
+  cvsContext.fillRect(0,0,cvs.width,cvs.height);    
 }
 
 //get number of tanks and create sprites
