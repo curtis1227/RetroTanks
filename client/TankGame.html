@@ -1,13 +1,51 @@
 <html>
-  <canvas id="gameCanvas" width="0" height="0"></canvas>
-  <table id="gameTable"></table>
-  <div>Leave "room rumber" field blank to be randomly placed in a room</div>
-  <form id="roomNum">
-    <input type="text" placeholder="room number">
-    <input type="submit" value="Join Room">
-  </form>
+  <head>
 
-  <script src = "/socket.io/socket.io.js"></script>
-  <script src = "scripts/Sprite.js"></script>
-  <script src = "scripts/gameClient.js"></script>
+    <style>
+
+      body {
+        font-family: arial;
+      }
+
+      #welcome {
+        margin: auto;
+        width: 50%;
+      }
+
+      #banner {
+        text-align: center;
+      }
+
+    </style>
+
+  </head>
+
+  <body>
+
+    <!--GAME-->
+    <canvas id="gameCanvas" width="0" height="0"></canvas>
+    <table id="gameTable"></table>
+
+    <!--WELCOME SCREEN-->
+    <div id="welcome">
+      <h1 id="banner">Welcome to Tank Game!</h1><br><br>
+
+      <div id="roomSelect">
+        Enter a room number to join a friend's room.<br>
+        If the room is full or the room does not exist, you will be placed in a random room.<br>
+        If the form is empty then you will be placed in a random room.
+        <form id="roomNum">
+          <input type="text" placeholder="room number">
+          <input type="submit" value="Join Room">
+        </form>
+      </div>
+    </div>
+
+    <!--SCRIPTS-->
+    <script src = "/socket.io/socket.io.js"></script>
+    <script src = "scripts/Sprite.js"></script>
+    <script src = "scripts/gameClient.js"></script>
+
+  </body>
+
 </html>

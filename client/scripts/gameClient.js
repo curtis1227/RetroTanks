@@ -14,6 +14,8 @@ form.addEventListener("submit", function(event)
 {
     event.preventDefault();
     socket.emit("joinRoom", form[0].value)
+    initCanvas();
+    document.getElementById("welcome").style.display = "none";
 });
 
 function initCanvas()
