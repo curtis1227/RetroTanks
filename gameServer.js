@@ -80,7 +80,10 @@ function onConnection(socket)
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
 	//joinRoom(socket);
-	socket.on("joinRoom", joinRoom(socket, roomID));
+	socket.on("joinRoom", function(roomID)
+	{
+		joinRoom(socket, roomID);
+	});
 
 	//client disconnect
 	socket.on("disconnect", function()
@@ -90,7 +93,8 @@ function onConnection(socket)
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
 
-		leaveRoom(socket);
+		if (socket.room != null) 
+			leaveRoom(socket);
 	});
 
 	//listen for player move (tank move or shoot)
@@ -109,16 +113,34 @@ function onConnection(socket)
 //puts client into a room
 function joinRoom(socket, roomID)
 {
-	//no rooms in queue
-	if (notFullRooms.head == null)
+	var room;
+	var roomFound = false;
+
+	//find user specified room
+	while (notFullRooms.next())
 	{
-		//console.log("creating new room!");
-		createRoom();
+		if (notFullRooms.current.id == roomID)
+		{
+			room = notFullRooms.current;
+			roomFound = true;
+			break;
+		}
+	}
+	notFullRooms.resetCursor();
+
+	//actions to perform if room wasn't found
+	if (!roomFound)
+	{
+		//no rooms in queue
+		if (notFullRooms.head == null)
+			createRoom();
+
+		room = notFullRooms.head;
+		roomID = room.id;
 	}
 
-	var room = notFullRooms.head;
-	socket.join(room.id);
-	socket.room = room.id;
+	socket.join(roomID);
+	socket.room = roomID;
 
 	room.playersInRoom.set(socket.id, socket);
 
@@ -180,7 +202,7 @@ function leaveRoom(socket)
 			if (notFullRooms.current.id == roomID)
 			{
 				--notFullRooms.current.numInRoom;
-				notFullRooms.current.playersInRoom.delete(roomID);
+				notFullRooms.current.playersInRoom.delete(socket.id);
 				console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
 				if (notFullRooms.current.numInRoom <= 0)
 				{
@@ -191,6 +213,7 @@ function leaveRoom(socket)
 				return;
 			}
 		}
+		notFullRooms.resetCursor();
 		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
 	}
 }
