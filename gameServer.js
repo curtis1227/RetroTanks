@@ -71,7 +71,7 @@ function updateGame(room)
 /**********************/
 
 //listens for client and executes accordingly
-io.on("connection", onConnection)
+io.on("connection", onConnection);
 function onConnection(socket)
 {
 	//client connect
@@ -79,7 +79,8 @@ function onConnection(socket)
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
-	joinRoom(socket);
+	//joinRoom(socket);
+	socket.on("joinRoom", joinRoom(socket, roomID));
 
 	//client disconnect
 	socket.on("disconnect", function()
@@ -106,7 +107,7 @@ function onConnection(socket)
 }
 
 //puts client into a room
-function joinRoom(socket)
+function joinRoom(socket, roomID)
 {
 	//no rooms in queue
 	if (notFullRooms.head == null)

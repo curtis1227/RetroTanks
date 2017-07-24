@@ -13,7 +13,7 @@ var form = document.getElementById("roomNum");
 form.addEventListener("submit", function(event)
 {
     event.preventDefault();
-    console.log(form[0].value);
+    socket.emit("joinRoom", form[0].value)
 });
 
 function initCanvas()
