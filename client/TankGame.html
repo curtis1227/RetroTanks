@@ -5,15 +5,16 @@
 
       body {
         font-family: arial;
+        font-size: 100%;
+      }
+
+      #game {
+        display: none;
       }
 
       #welcome {
         margin: auto;
         width: 50%;
-      }
-
-      #banner {
-        text-align: center;
       }
 
     </style>
@@ -23,22 +24,25 @@
   <body>
 
     <!--GAME-->
-    <canvas id="gameCanvas" width="0" height="0"></canvas>
-    <table id="gameTable"></table>
+    <div id="game">
+      <span style="font-size: 2em; font-variant: small-caps; font-weight: bold;">Tank Game</span><br>
+      <span style="color: grey">Room: </span><span id="roomNum"></span>
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <table id="gameTable"></table>
+    </div>
 
     <!--WELCOME SCREEN-->
     <div id="welcome">
-      <h1 id="banner">Welcome to Tank Game!</h1><br><br>
+      <h1 style="text-align: center";>Welcome to Tank Game!</h1><br><br>
 
-      <div id="roomSelect">
-        Enter a room number to join a friend's room.<br>
-        If the room is full or the room does not exist, you will be placed in a random room.<br>
-        If the form is empty then you will be placed in a random room.
-        <form id="roomNum">
-          <input type="text" placeholder="room number">
-          <input type="submit" value="Join Room">
-        </form>
-      </div>
+      Enter a room number to join a friend's room.<br>
+      If the room is full or the room does not exist, you will be placed in a random room.<br>
+      If the form is empty then you will be placed in a random room.
+      <form id="roomSelect">
+        <input type="text" placeholder="room number">
+        <input type="submit" value="Join Room">
+      </form>
+
     </div>
 
     <!--SCRIPTS-->

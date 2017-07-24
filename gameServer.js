@@ -8,7 +8,7 @@ var linkedList = require("linkedlist");
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 4;
+const PLAYERSPERROOM = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -144,7 +144,7 @@ function joinRoom(socket, roomID)
 
 	room.playersInRoom.set(socket.id, socket);
 
-	io.to(room.id).emit("msg", socket.id + " has joined the room.");
+	io.to(room.id).emit("joinRoom", socket.id + " has joined room: ", room.id);
 	console.log("Player " + socket.id + " has joined room " + room.id);
 
 	//move room from notFullRooms to fullRooms

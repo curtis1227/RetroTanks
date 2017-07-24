@@ -8,7 +8,7 @@ var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
 var keyPress;
 var keyMap = [];
 var tankSprites = [];
-var form = document.getElementById("roomNum");
+var form = document.getElementById("roomSelect");
 
 form.addEventListener("submit", function(event)
 {
@@ -16,14 +16,20 @@ form.addEventListener("submit", function(event)
     socket.emit("joinRoom", form[0].value)
     initCanvas();
     document.getElementById("welcome").style.display = "none";
+    document.getElementById("game").style.display = "initial"
+});
+
+socket.on("joinRoom", function(text, roomID)
+{
+    document.getElementById("roomNum").innerHTML = roomID;
+    console.log(text + roomID);
+
 });
 
 function initCanvas()
 {
   //Initialize canvas
   cvs = document.getElementById('gameCanvas');
-  cvs.width = 800;
-  cvs.height = 600;
   cvsContext = cvs.getContext('2d');
 
   //Initialize game table
