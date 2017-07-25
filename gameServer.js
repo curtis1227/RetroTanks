@@ -144,7 +144,7 @@ function joinRoom(socket, roomID)
 
 	room.playersInRoom.set(socket.id, socket);
 
-	io.to(room.id).emit("joinRoom", socket.id + " has joined room: ", room.id);
+	io.to(room.id).emit("joinRoom", socket.id + " has joined room: ", room.id, PLAYERSPERROOM - room.numInRoom - 1);
 	console.log("Player " + socket.id + " has joined room " + room.id);
 
 	//move room from notFullRooms to fullRooms

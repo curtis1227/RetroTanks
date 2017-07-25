@@ -1,50 +1,66 @@
 <html>
   <head>
-
     <style>
 
       body {
         font-family: arial;
         font-size: 100%;
-        margin: auto;
-        width: 50%;
         /*background-color: black;*/
       }
 
+      #container {
+        position: relative;
+        width: 800px;
+        height: 600px;
+      }
+
       #welcome {
-        /*width: 50%;*/
-        padding: 10%;
-        background-color: rgba(255, 255, 255, .2);
+        position: absolute;
+        width: 60%;
+        height: 40%;
+        top: 0px;
+        bottom: 0px;
+        right: 0px;
+        left: 0px;
+        padding: 5%;
+        margin: auto;
+        background-color: rgba(118, 121, 124, .2);
         color: white;
       }
 
     </style>
-
   </head>
 
   <body>
 
     <!--GAME-->
-    <div id="game">
-      <span style="font-size: 2em; font-variant: small-caps; font-weight: bold;">Tank Game</span><br>
-      <span>Room: </span><span id="roomNum"  style="color: grey"></span><br>
+    <span style="font-size: 2em; font-variant: small-caps; font-weight: bold;">Tank Game</span><br>
+    <span>Room: </span><span id="roomNum"  style="color: grey"></span><br>
+
+    <div id="container">
+
       <canvas id="gameCanvas" width="800" height="600"></canvas><br>
-      <table id="gameTable"></table>
+
+      <!--WELCOME SCREEN-->
+      <div id="welcome">
+        <h1 id="banner" style="text-align: center";>Welcome to Tank Game!</h1><br>
+
+        <p id="instructions">
+        Enter a room number to join a friend's room.<br>
+        If the room is full or the room does not exist, you will be placed in a random room.<br>
+        If the form is empty then you will be placed in a random room.
+        </p>
+        <form id="roomSelect">
+          <input type="text" placeholder="room number">
+          <input type="submit" value="Join Room">
+        </form>
+      </div>
+
     </div>
 
-    <!--WELCOME SCREEN-->
-    <div id="welcome">
-      <h1 style="text-align: center";>Welcome to Tank Game!</h1><br><br>
+    <table id="gameTable"></table>
 
-      Enter a room number to join a friend's room.<br>
-      If the room is full or the room does not exist, you will be placed in a random room.<br>
-      If the form is empty then you will be placed in a random room.
-      <form id="roomSelect">
-        <input type="text" placeholder="room number">
-        <input type="submit" value="Join Room">
-      </form>
-
-    </div>
+    
 
     <!--SCRIPTS-->
     <script src = "/socket.io/socket.io.js"></script>
@@ -52,5 +68,4 @@
     <script src = "scripts/gameClient.js"></script>
 
   </body>
-
 </html>

@@ -2,6 +2,7 @@ const TANKSIZE = 84;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
+const FPS = 15;
 var socket = io();
 var cvs, cvsContext;
 var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
@@ -13,6 +14,34 @@ var form = document.getElementById("roomSelect");
 window.onload = function()
 {
     initCanvas();
+    startTanksAnimation();
+}
+
+function startTanksAnimation()
+{
+    bgTank = new Sprite(-TANKSIZE, cvs.height / 2, 90, 
+                                    TANKSIZE, TANKSIZE, cvsContext, 
+                                    "src/blue_tank.png", false);
+    window.intervalID = setInterval(tanksAnimation, 1000/FPS);
+}
+
+function tanksAnimation()
+{
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
+    if (bgTank.posX > cvs.width + TANKSIZE)
+    {
+        bgTank.posX = -TANKSIZE;
+        bgTank.posY = Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2
+    }
+    bgTank.updateSprite(bgTank.posX + 3, bgTank.posY, bgTank.direction);
+}
+
+function endTanksAnimation()
+{
+    clearInterval(window.intervalID);
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
 }
 
 form.addEventListener("submit", function(event)
@@ -20,13 +49,14 @@ form.addEventListener("submit", function(event)
     event.preventDefault();
     socket.emit("joinRoom", form[0].value)
     //initCanvas();
-    document.getElementById("welcome").style.display = "none";
-    document.getElementById("game").style.display = "initial"
+    document.getElementById("instructions").style.display = "none";
+    document.getElementById("roomSelect").style.display = "none";
 });
 
-socket.on("joinRoom", function(text, roomID)
+socket.on("joinRoom", function(text, roomID, num)
 {
     document.getElementById("roomNum").innerHTML = roomID;
+    document.getElementById("banner").innerHTML = "Waiting For " + num + " More Players"
     console.log(text + roomID);
 });
 
@@ -52,6 +82,9 @@ function initCanvas()
 //get number of tanks and create sprites
 socket.on("gamestart", function(tanks)
 {
+    document.getElementById("welcome").style.display = "none";
+    endTanksAnimation();
+
     console.log("Game Started!");
     for (var i = 0; i < tanks.length; i++)
     {
@@ -102,6 +135,8 @@ socket.on("gamestate", function(tanks)
 socket.on("gameend", function()
 {
     console.log("Game Ended!");
+    document.getElementById("welcome").style.display = "initial";
+    document.getElementById("banner").innerHTML = "Game Over!"
 
     cvsContext.fillStyle = 'black';
     cvsContext.fillRect(0,0,cvs.width,cvs.height);
