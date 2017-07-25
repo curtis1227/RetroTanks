@@ -57,7 +57,8 @@ function updateRooms()
 {
 	for (var room of fullRooms.values())
 	{
-		updateGame(room);
+		if (room.game != null)
+			updateGame(room);
 	}
 }
 
@@ -76,7 +77,7 @@ function updateGame(room)
 /**********************/
 
 //listens for client and executes accordingly
-io.on("connection", onConnection)
+io.on("connection", onConnection);
 function onConnection(socket)
 {
 	//client connect
@@ -84,7 +85,30 @@ function onConnection(socket)
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
-	joinRoom(socket);
+	//joinRoom(socket);
+	socket.on("joinRoom", function(roomID)
+	{
+		joinRoom(socket, roomID);
+	});
+
+	socket.on("socketReady", function()
+	{
+		var room = fullRooms.get(socket.room);
+		room.playersInRoom.set(socket.id, true);
+
+		var allReady = true;
+		for (var ready of room.playersInRoom.values())
+		{
+			allReady &= ready;
+		}
+
+		if (allReady)
+		{
+			room.game = new TankGame(room.playersInRoom);
+			io.to(room.id).emit("gamestart", room.game.tanks);
+			console.log("Game in Room " + room.id + " started");
+		}
+	});
 
 	//client disconnect
 	socket.on("disconnect", function()
@@ -94,7 +118,8 @@ function onConnection(socket)
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
 
-		leaveRoom(socket);
+		if (socket.room != null) 
+			leaveRoom(socket);
 	});
 
 	//listen for player move (tank move or shoot)
@@ -105,35 +130,53 @@ function onConnection(socket)
 			//console.log("Player " + socket.id + " moved: " + move);
 		}
 	});
+
+	//test message on server from client
+	socket.on("test", test);
 }
 
 //puts client into a room
-function joinRoom(socket)
+function joinRoom(socket, roomID)
 {
-	//no rooms in queue
-	if (notFullRooms.head == null)
+	var room;
+	var roomFound = false;
+
+	//find user specified room
+	while (notFullRooms.next())
 	{
-		//console.log("creating new room!");
-		createRoom();
+		if (notFullRooms.current.id == roomID)
+		{
+			room = notFullRooms.current;
+			roomFound = true;
+			break;
+		}
+	}
+	notFullRooms.resetCursor();
+
+	//actions to perform if room wasn't found
+	if (!roomFound)
+	{
+		//no rooms in queue
+		if (notFullRooms.head == null)
+			createRoom();
+
+		room = notFullRooms.head;
+		roomID = room.id;
 	}
 
-	var room = notFullRooms.head;
-	socket.join(room.id);
-	socket.room = room.id;
+	socket.join(roomID);
+	socket.room = roomID;
 
-	room.playersInRoom.set(socket.id, socket);
+	room.playersInRoom.set(socket.id, false);
 
-	io.to(room.id).emit("msg", socket.id + " has joined the room.");
+	io.to(room.id).emit("joinRoom", socket.id + " has joined room: ", room.id, PLAYERSPERROOM - room.numInRoom - 1);
 	console.log("Player " + socket.id + " has joined room " + room.id);
 
 	//move room from notFullRooms to fullRooms
 	if (++room.numInRoom >= PLAYERSPERROOM)
 	{
 		console.log("Room " + room.id + " full with " + room.numInRoom + " players");
-
-		room.game = new TankGame(room.playersInRoom);
-		io.to(room.id).emit("gamestart", room.game.tanks);
-		console.log("Game in Room " + room.id + " started");
+		io.to(roomID).emit("roomFull");
 
 		fullRooms.set(room.id, room);
 		notFullRooms.pop();
@@ -167,8 +210,6 @@ function leaveRoom(socket)
 		--room.numInRoom;
 		room.playersInRoom.delete(socket.id);
 
-		//console.log(room.playersInRoom.has(roomID));
-
 		notFullRooms.push(room);
 		fullRooms.delete(roomID);
 		console.log("Room " + roomID + " no longer full! numInRoom: " + room.numInRoom);
@@ -192,6 +233,7 @@ function leaveRoom(socket)
 				return;
 			}
 		}
+		notFullRooms.resetCursor();
 		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
 	}
 }
@@ -225,9 +267,9 @@ function TankGame(playersInRoom){
 	this.tanks = undefined;
 	this.tanks = [];
 
-	for (var socket of playersInRoom.values())
+	for (var socketID of playersInRoom.keys())
 	{
-		this.tanks[this.numTanks] = new Tank(socket.id);
+		this.tanks[this.numTanks] = new Tank(socketID);
 		this.numTanks++;
 	}
 
@@ -454,9 +496,9 @@ function listPlayersInRoom(room)
 	}
 
 	console.log("Listing Players in Room " + room.id);
-	for (var i of room.playersInRoom.values())
+	for (var i of room.playersInRoom.keys())
 	{
-		console.log(i.id);
+		console.log(i);
 	}
 }
 
