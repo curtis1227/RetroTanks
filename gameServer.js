@@ -307,7 +307,7 @@ function TankGame(playersInRoom){
 			    {
 			        this.tanks[i].deleteBullet(j);
 			        j--;
-			        continue;			    	
+			        continue;
 			    }
 
 	      		for (var k = 0; k < this.tanks.length; k++)

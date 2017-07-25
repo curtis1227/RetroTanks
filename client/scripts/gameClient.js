@@ -2,7 +2,7 @@ const TANKSIZE = 84;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
-const FPS = 15;
+const WINDOW_FPS = 15;
 var socket = io();
 var cvs, cvsContext;
 var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
@@ -19,10 +19,9 @@ window.onload = function()
 
 function startTanksAnimation()
 {
-    bgTank = new Sprite(-TANKSIZE * 2, cvs.height / 2, 90, 
-                                    TANKSIZE, TANKSIZE, cvsContext, 
-                                    "src/blue_tank.png", false);
-    window.intervalID = setInterval(tanksAnimation, 1000/FPS);
+    bgTank = new Sprite(-TANKSIZE * 2, cvs.height / 2, RIGHT, 
+      TANKSIZE, TANKSIZE, "src/blue_tank.png", false);
+    window.intervalID = setInterval(tanksAnimation, 1000/WINDOW_FPS);
 }
 
 function tanksAnimation()
