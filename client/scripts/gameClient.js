@@ -10,11 +10,16 @@ var keyMap = [];
 var tankSprites = [];
 var form = document.getElementById("roomSelect");
 
+window.onload = function()
+{
+    initCanvas();
+}
+
 form.addEventListener("submit", function(event)
 {
     event.preventDefault();
     socket.emit("joinRoom", form[0].value)
-    initCanvas();
+    //initCanvas();
     document.getElementById("welcome").style.display = "none";
     document.getElementById("game").style.display = "initial"
 });
@@ -23,7 +28,6 @@ socket.on("joinRoom", function(text, roomID)
 {
     document.getElementById("roomNum").innerHTML = roomID;
     console.log(text + roomID);
-
 });
 
 function initCanvas()

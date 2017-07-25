@@ -6,15 +6,16 @@
       body {
         font-family: arial;
         font-size: 100%;
-      }
-
-      #game {
-        display: none;
+        margin: auto;
+        width: 50%;
+        /*background-color: black;*/
       }
 
       #welcome {
-        margin: auto;
-        width: 50%;
+        /*width: 50%;*/
+        padding: 10%;
+        background-color: rgba(255, 255, 255, .2);
+        color: white;
       }
 
     </style>
@@ -26,7 +27,7 @@
     <!--GAME-->
     <div id="game">
       <span style="font-size: 2em; font-variant: small-caps; font-weight: bold;">Tank Game</span><br>
-      <span style="color: grey">Room: </span><span id="roomNum"></span><br>
+      <span>Room: </span><span id="roomNum"  style="color: grey"></span><br>
       <canvas id="gameCanvas" width="800" height="600"></canvas><br>
       <table id="gameTable"></table>
     </div>
