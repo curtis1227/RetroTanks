@@ -28,6 +28,7 @@ var gameTable = document.getElementById('gameTable');
 var score = document.getElementById("score");
 var roomNum = document.getElementById("roomNum");
 var container = document.getElementById("container");
+var grey = document.getElementById("grey");
 var welcome = document.getElementById("welcome");
 var banner = document.getElementById("banner");
 var instructions = document.getElementById("instructions");
@@ -66,7 +67,7 @@ function initCanvas()
 
 function startBgAnimation()
 {
-    bgTank = new Sprite(-TANKSIZE * 2, cvs.height / 2, RIGHT, TANKSIZE, TANKSIZE, "src/blue_tank.png", false);
+    bgTank = new Sprite(-TANKSIZE * 2, randomStart(), RIGHT, TANKSIZE, TANKSIZE, "src/blue_tank.png", false);
     intervalID = setInterval(bgAnimation, 1000/WINDOW_FPS);
 }
 
@@ -77,7 +78,7 @@ function bgAnimation()
     if (bgTank.posX > cvs.width + TANKSIZE)
     {
         bgTank.posX = -TANKSIZE;
-        bgTank.posY = Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2
+        bgTank.posY = randomStart();
     }
     bgTank.updateSprite(bgTank.posX + 2, bgTank.posY, bgTank.direction);
 }
@@ -87,6 +88,11 @@ function endBgAnimation()
     clearInterval(intervalID);
     cvsContext.fillStyle = 'black';
     cvsContext.fillRect(0,0,cvs.width,cvs.height);
+}
+
+function randomStart()
+{
+    return Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -155,7 +161,7 @@ function sendReady()
 //get number of tanks and create sprites
 socket.on("gamestart", function(tanks)
 {
-    welcome.style.display = "none";
+    grey.style.display = "none";
     endBgAnimation();
 
     console.log("Game Started!");
@@ -208,7 +214,7 @@ socket.on("gameend", function()
 {
     console.log("Game Ended!");
 
-    welcome.style.display = "initial";
+    grey.style.display = "initial";
     banner.innerHTML = "Game Over!"
     instructions.innerHTML = "You got " + score.innerHTML + " points!";
     button.value = "Play Again?";

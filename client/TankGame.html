@@ -5,13 +5,20 @@
       body {
         font-family: arial;
         font-size: 100%;
-        /*background-color: black;*/
       }
 
       #container {
         position: relative;
         width: 800px;
         height: 600px;
+      }
+
+      #grey {
+        position: absolute;
+        background-color: rgba(0, 0, 0, .5);
+        width: 800px;
+        height: 600px;
+        top: 0px;
       }
 
       #welcome {
@@ -23,8 +30,6 @@
         right: 0px;
         left: 0px;
         margin: auto;
-        padding: 2%;
-        background-color: rgba(0, 0, 0, .5);
         color: white;
       }
 
@@ -41,6 +46,8 @@
 
       <canvas id="gameCanvas" width="800" height="600"></canvas><br>
 
+      <div id="grey">
+
       <!--WELCOME SCREEN-->
       <div id="welcome">
         <h1 id="banner" style="text-align: center";>Welcome to Tank Game!</h1><br>
@@ -54,6 +61,8 @@
           <input id="textBox" type="text" placeholder="room number">
           <input id="button" type="submit" value="Join Room">
         </form>
+      </div>
+
       </div>
 
     </div>
