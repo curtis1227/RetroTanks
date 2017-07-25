@@ -342,10 +342,7 @@ function TankGame(playersInRoom){
 function Tank(playerID){
   //Initialize vars
   this.id = playerID;
-  //TODO change tank starting positions
-  var startVector = new SAT.Vector(Math.random() * CVSWIDTH, Math.random() * CVSHEIGHT);
-  //Position vector is bottom left corner
-  this.hitBox = new SAT.Polygon(startVector
+  this.hitBox = new SAT.Polygon(getStartingPosition(playerID)
     , [ new SAT.Vector(-INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
     , new SAT.Vector(INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
     , new SAT.Vector(INI_TANKWIDTH/2, INI_TANKHEIGHT/2)
@@ -466,7 +463,12 @@ function Bullet(IposX,IposY,IspeedX,IspeedY){
   this.update();
 }
 
-//HELPER FUNCTION
+//HELPER FUNCTIONS
+
+//EFFECTS: Returns a random number between min (inclusive) and max (exclusive)
+function getRandom(min, max) {
+    return Math.random() * (max - min) + min;
+}
 
 //REQUIRES: playertank has the hitbox of the expected position of playertank after move
 //EFFECTS: Returns whether the move playertank is trying to make will collide with another tank
@@ -484,8 +486,46 @@ function checkTankcollision(playertank){
 	return false;
 }
 
-//TEST FUNCTIONS
+//EFFECTS: Returns a new SAT.Vector that's the starting position of the tank
+function getStartingPosition(tankID){
+  var i = 0;
+  //console.log(fullRooms.get(players.get(tankID).room));
+  for(var playerID of fullRooms.get(players.get(tankID).room).playersInRoom.keys()){
+    if(playerID == tankID){
+      var halfTankSize = INI_TANKHEIGHT/2;
+      switch(i){
+        case 0: //Top left
+          return new SAT.Vector(getRandom(halfTankSize,CVSWIDTH/3 - halfTankSize),
+            getRandom(2*CVSHEIGHT/3 + halfTankSize,CVSHEIGHT - halfTankSize));
+        case 1: //Middle right
+          return new SAT.Vector(getRandom(2*CVSWIDTH/3 + halfTankSize,CVSWIDTH - halfTankSize),
+            getRandom(CVSHEIGHT/3 + halfTankSize,2*CVSHEIGHT/3 - halfTankSize));
+        case 2: //Bottom left
+          return new SAT.Vector(getRandom(halfTankSize,CVSWIDTH/3 - halfTankSize),
+            getRandom(halfTankSize,CVSHEIGHT/3 - halfTankSize));
+        case 3: //Top middle
+          return new SAT.Vector(getRandom(CVSWIDTH/3 + halfTankSize,2*CVSWIDTH/3 - halfTankSize),
+            getRandom(2*CVSHEIGHT/3 + halfTankSize,CVSHEIGHT - halfTankSize));
+        case 4: //Bottom right
+          return new SAT.Vector(getRandom(2*CVSWIDTH/3 + halfTankSize,CVSWIDTH - halfTankSize),
+            getRandom(halfTankSize,CVSHEIGHT/3 - halfTankSize));
+        case 5: //Middle left
+          return new SAT.Vector(getRandom(halfTankSize,CVSWIDTH/3 - halfTankSize),
+            getRandom(CVSHEIGHT/3 + halfTankSize,2*CVSHEIGHT/3 - halfTankSize));
+        case 6: //Top right
+          return new SAT.Vector(getRandom(2*CVSWIDTH/3 + halfTankSize,CVSWIDTH - halfTankSize),
+            getRandom(2*CVSHEIGHT/3 + halfTankSize,CVSHEIGHT - halfTankSize));
+        case 7: //Bottom middle
+          return new SAT.Vector(getRandom(CVSWIDTH/3 + halfTankSize,2*CVSWIDTH/3 - halfTankSize),
+            getRandom(halfTankSize,CVSHEIGHT/3 - halfTankSize));
+      }
+    }
+    i++;
+  }
+  exit(1); //Something went wrong
+}
 
+//TEST FUNCTIONS
 
 function listPlayersInRoom(room)
 {
