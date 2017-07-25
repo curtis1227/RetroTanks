@@ -22,9 +22,9 @@
         bottom: 0px;
         right: 0px;
         left: 0px;
-        padding: 5%;
         margin: auto;
-        background-color: rgba(118, 121, 124, .2);
+        padding: 2%;
+        background-color: rgba(0, 0, 0, .5);
         color: white;
       }
 
@@ -48,11 +48,11 @@
         <p id="instructions">
         Enter a room number to join a friend's room.<br>
         If the room is full or the room does not exist, you will be placed in a random room.<br>
-        If the form is empty then you will be placed in a random room.
+        If the form is left blank, you will be placed in a random room.
         </p>
         <form id="roomSelect">
-          <input type="text" placeholder="room number">
-          <input type="submit" value="Join Room">
+          <input id="textBox" type="text" placeholder="room number">
+          <input id="button" type="submit" value="Join Room">
         </form>
       </div>
 

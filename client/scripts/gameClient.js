@@ -19,7 +19,7 @@ window.onload = function()
 
 function startTanksAnimation()
 {
-    bgTank = new Sprite(-TANKSIZE, cvs.height / 2, 90, 
+    bgTank = new Sprite(-TANKSIZE * 2, cvs.height / 2, 90, 
                                     TANKSIZE, TANKSIZE, cvsContext, 
                                     "src/blue_tank.png", false);
     window.intervalID = setInterval(tanksAnimation, 1000/FPS);
@@ -34,7 +34,7 @@ function tanksAnimation()
         bgTank.posX = -TANKSIZE;
         bgTank.posY = Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2
     }
-    bgTank.updateSprite(bgTank.posX + 3, bgTank.posY, bgTank.direction);
+    bgTank.updateSprite(bgTank.posX + 2, bgTank.posY, bgTank.direction);
 }
 
 function endTanksAnimation()
@@ -46,18 +46,43 @@ function endTanksAnimation()
 
 form.addEventListener("submit", function(event)
 {
+    if (form[1].value == "Play Again?")
+        return;
     event.preventDefault();
-    socket.emit("joinRoom", form[0].value)
-    //initCanvas();
-    document.getElementById("instructions").style.display = "none";
-    document.getElementById("roomSelect").style.display = "none";
+    if (form[1].value == "Ready")
+        sendReady();
+    else
+        joinRoom();
 });
+
+function joinRoom()
+{
+    socket.emit("joinRoom", form[0].value)
+    document.getElementById("instructions").innerHTML = "You are the <span style=\"color: rgb(123, 215, 55);\">GREEN</span> tank. They are the <span style=\"color: rgb(91, 139, 240);\">BLUE</span> tank.<br>Use WASD to move and SPACE to shoot. It takes time to reload!<br>Hit them and don't get hit! Have fun!";
+    document.getElementById("textBox").style.display = "none";
+    document.getElementById("roomSelect").style.margin = "auto";
+    document.getElementById("button").value = "Ready";
+    document.getElementById("button").disabled = true;
+}
+
+function sendReady()
+{
+    socket.emit("socketReady");
+    document.getElementById("button").disabled = true;
+    document.getElementById("button").style.backgroundColor = "green";
+}
 
 socket.on("joinRoom", function(text, roomID, num)
 {
     document.getElementById("roomNum").innerHTML = roomID;
     document.getElementById("banner").innerHTML = "Waiting For " + num + " More Players"
     console.log(text + roomID);
+});
+
+socket.on("roomFull", function()
+{
+    document.getElementById("banner").innerHTML = "Room Full, Ready up!";
+    document.getElementById("button").disabled = false;
 });
 
 function initCanvas()
@@ -137,6 +162,10 @@ socket.on("gameend", function()
     console.log("Game Ended!");
     document.getElementById("welcome").style.display = "initial";
     document.getElementById("banner").innerHTML = "Game Over!"
+    document.getElementById("instructions").innerHTML = "You got " + scoreScoreCell.innerHTML + " points!";
+    document.getElementById("button").value = "Play Again?";
+    document.getElementById("button").style.backgroundColor = "";
+    document.getElementById("button").disabled = false;
 
     cvsContext.fillStyle = 'black';
     cvsContext.fillRect(0,0,cvs.width,cvs.height);
