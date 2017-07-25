@@ -120,11 +120,10 @@ socket.on("gamestart", function(tanks)
             color = "green";
         }
 
-        tankSprites[i] = new Sprite(tanks[i].posX, tanks[i].posY, tanks[i].direction, 
-                                    TANKSIZE, TANKSIZE, cvsContext, 
-                                    "src/" + color + "_tank.png", true);
+        tankSprites[i] = new Sprite(tanks[i].hitBox.pos.x, tanks[i].hitBox.pos.y, tanks[i].direction, 
+                                    TANKSIZE, TANKSIZE, "src/" + color + "_tank.png", true);
 
-        tankSprites[i].updateSprite(tanks[i].posX, tanks[i].posY, tanks[i].direction);
+        tankSprites[i].updateSprite(tanks[i].hitBox.pos.x, tanks[i].hitBox.pos.y, tanks[i].direction);
     }
 });
 
@@ -138,17 +137,17 @@ socket.on("gamestate", function(tanks)
 
     for (var i = 0; i < tanks.length; i++)
     {
-        //console.log("Player " + tanks[i].id + " Tanks Position: " + tanks[i].posX + ", " + tanks[i].posY);
-        tankSprites[i].updateSprite(tanks[i].posX, tanks[i].posY, tanks[i].direction);
+        //console.log("Player " + tanks[i].id + " Tanks Position: " + tanks[i].hitBox.pos.x + ", " + tanks[i].hitBox.pos.y);
+        tankSprites[i].updateSprite(tanks[i].hitBox.pos.x, tanks[i].hitBox.pos.y, tanks[i].direction);
 
         //console.log("Tank " + tanks[i].id + " has " + tanks[i].bullets.length + " bullets");
         for (var j = 0; j < tanks[i].bullets.length; j++)
         {
-            //console.log(tanks[i].bullets[j].posX + " " + tanks[i].bullets[j].posY);
+            //console.log(tanks[i].bullets[j].hitBox.pos.x + " " + tanks[i].bullets[j].hitBox.pos.y);
             cvsContext.fillStyle = 'white';
-            cvsContext.fillRect(tanks[i].bullets[j].posX-BULLETSIZE/2,
-                                tanks[i].bullets[j].posY-BULLETSIZE/2,
-                                BULLETSIZE,BULLETSIZE); 
+            cvsContext.fillRect(tanks[i].bullets[j].hitBox.pos.x,
+                                cvs.height-tanks[i].bullets[j].hitBox.pos.y,
+                                BULLETSIZE,BULLETSIZE);
         }
 
         if (tanks[i].id == socket.id)
