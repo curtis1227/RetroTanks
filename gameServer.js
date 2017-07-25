@@ -9,7 +9,7 @@ var SAT = require('sat');
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 3;
+const PLAYERSPERROOM = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -58,7 +58,11 @@ function updateRooms()
 	for (var room of fullRooms.values())
 	{
 		if (room.game != null)
-			updateGame(room);
+			if(updateGame(room))
+			{
+				fullRooms.delete(room.id);
+				console.log("Room " + room.id + " no longer full! numInRoom: " + room.numInRoom);
+			}
 	}
 }
 
@@ -66,7 +70,11 @@ function updateRooms()
 function updateGame(room)
 {
 	//update game and process player moves
-	room.game.update();
+	if (room.game.update())
+	{
+		stopGame(room);
+		return true;
+	}
 
 	//update players with updated tank/bullet positions
 	io.to(room.id).emit("gamestate", room.game.tanks);
@@ -247,7 +255,6 @@ function leaveRoom(socket)
 			}
 		}
 		notFullRooms.resetCursor();
-		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
 	}
 }
 
@@ -277,6 +284,7 @@ function Room()
 function TankGame(playersInRoom){
 
 	this.numTanks = 0;
+	this.numAlive = 0;
 	this.tanks = undefined;
 	this.tanks = [];
 
@@ -284,6 +292,7 @@ function TankGame(playersInRoom){
 	{
 		this.tanks[this.numTanks] = new Tank(socketID);
 		this.numTanks++;
+		this.numAlive++;
 	}
 
 	//update player's tank with move
@@ -307,6 +316,10 @@ function TankGame(playersInRoom){
 
 	this.update = function()
 	{
+		if (this.numAlive <= 1)
+		{
+			return true;
+		}
 		//Check bullets collision with tanks
 	  	for (var i = 0;i<this.tanks.length;i++)
 	  	{
@@ -339,9 +352,11 @@ function TankGame(playersInRoom){
 			        //Move tank off screen
 			        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
 			        this.tanks[k].dead = true;
-              //Break to stop checking if the deleted bullet (now undefined) hit other tanks
-              break;
-			      }
+			        this.numAlive--;
+
+	                //Break to stop checking if the deleted bullet (now undefined) hit other tanks
+	                break;
+			    }
 	        }
 	      }
 	    }
