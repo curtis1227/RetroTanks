@@ -239,6 +239,9 @@ window.onkeydown = window.onkeyup = function(e)
     {
         keyPress = e.keyCode;
     }
+
+    if (e.keyCode == SPACE && e.target == document.body)
+        e.preventDefault();
     //console.log("Event Triggered By: " + e.keyCode);
     //console.log("KeyPress Set To: " + keyPress);
 }
