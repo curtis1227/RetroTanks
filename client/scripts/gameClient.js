@@ -1,113 +1,168 @@
-const TANKSIZE = 84;
-const BULLETSIZE = 4;
+///////////////////////////////////////////////////////////////////////////////
+
+//Controls
+
+///////////////////////////////////////////////////////////////////////////////
+
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Variables
+
+///////////////////////////////////////////////////////////////////////////////
+
+const TANKSIZE = 84;
+const BULLETSIZE = 4;
 const WINDOW_FPS = 15;
+
 var socket = io();
-var cvs, cvsContext;
-var gameTable,scoreRow,scoreNameCell,scoreScoreCell;
 var keyPress;
 var keyMap = [];
 var tankSprites = [];
+
+var cvs = document.getElementById('gameCanvas');
+var cvsContext = cvs.getContext('2d');
+var gameTable = document.getElementById('gameTable');
+var score = document.getElementById("score");
+var roomNum = document.getElementById("roomNum");
+var container = document.getElementById("container");
+var grey = document.getElementById("grey");
+var welcome = document.getElementById("welcome");
+var banner = document.getElementById("banner");
+var instructions = document.getElementById("instructions");
 var form = document.getElementById("roomSelect");
+var textBox = document.getElementById("textBox");
+var button = document.getElementById("button");
+var intervalID;
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Load Functions
+
+///////////////////////////////////////////////////////////////////////////////
 
 window.onload = function()
 {
     initCanvas();
-    startTanksAnimation();
+    startBgAnimation();
 }
-
-function startTanksAnimation()
-{
-    bgTank = new Sprite(-TANKSIZE * 2, cvs.height / 2, RIGHT, 
-      TANKSIZE, TANKSIZE, "src/blue_tank.png", false);
-    window.intervalID = setInterval(tanksAnimation, 1000/WINDOW_FPS);
-}
-
-function tanksAnimation()
-{
-    cvsContext.fillStyle = 'black';
-    cvsContext.fillRect(0,0,cvs.width,cvs.height);
-    if (bgTank.posX > cvs.width + TANKSIZE)
-    {
-        bgTank.posX = -TANKSIZE;
-        bgTank.posY = Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2
-    }
-    bgTank.updateSprite(bgTank.posX + 2, bgTank.posY, bgTank.direction);
-}
-
-function endTanksAnimation()
-{
-    clearInterval(window.intervalID);
-    cvsContext.fillStyle = 'black';
-    cvsContext.fillRect(0,0,cvs.width,cvs.height);
-}
-
-form.addEventListener("submit", function(event)
-{
-    if (form[1].value == "Play Again?")
-        return;
-    event.preventDefault();
-    if (form[1].value == "Ready")
-        sendReady();
-    else
-        joinRoom();
-});
-
-function joinRoom()
-{
-    socket.emit("joinRoom", form[0].value)
-    document.getElementById("instructions").innerHTML = "You are the <span style=\"color: rgb(123, 215, 55);\">GREEN</span> tank. They are the <span style=\"color: rgb(91, 139, 240);\">BLUE</span> tank.<br>Use WASD to move and SPACE to shoot. It takes time to reload!<br>Hit them and don't get hit! Have fun!";
-    document.getElementById("textBox").style.display = "none";
-    document.getElementById("roomSelect").style.margin = "auto";
-    document.getElementById("button").value = "Ready";
-    document.getElementById("button").disabled = true;
-}
-
-function sendReady()
-{
-    socket.emit("socketReady");
-    document.getElementById("button").disabled = true;
-    document.getElementById("button").style.backgroundColor = "green";
-}
-
-socket.on("joinRoom", function(text, roomID, num)
-{
-    document.getElementById("roomNum").innerHTML = roomID;
-    document.getElementById("banner").innerHTML = "Waiting For " + num + " More Players"
-    console.log(text + roomID);
-});
-
-socket.on("roomFull", function()
-{
-    document.getElementById("banner").innerHTML = "Room Full, Ready up!";
-    document.getElementById("button").disabled = false;
-});
 
 function initCanvas()
 {
-  //Initialize canvas
-  cvs = document.getElementById('gameCanvas');
-  cvsContext = cvs.getContext('2d');
-
   //Initialize game table
-  gameTable = document.getElementById('gameTable');
-  scoreRow = gameTable.insertRow(0);
-  scoreNameCell = scoreRow.insertCell(0);
-  scoreNameCell.innerHTML = "Score: ";
-  scoreScoreCell = scoreRow.insertCell(1);
-  scoreScoreCell.innerHTML = 0;
+  score.innerHTML = 0;
 
   //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);    
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
+//Background Tank Animation
+
+///////////////////////////////////////////////////////////////////////////////
+
+function startBgAnimation()
+{
+    bgTank = new Sprite(-TANKSIZE * 2, randomStart(), RIGHT, TANKSIZE, TANKSIZE, "src/blue_tank.png", false);
+    intervalID = setInterval(bgAnimation, 1000/WINDOW_FPS);
+}
+
+function bgAnimation()
+{
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
+    if (bgTank.posX > cvs.width + TANKSIZE)
+    {
+        bgTank.posX = -TANKSIZE;
+        bgTank.posY = randomStart();
+    }
+    bgTank.updateSprite(bgTank.posX + 2, bgTank.posY, bgTank.direction);
+}
+
+function endBgAnimation()
+{
+    clearInterval(intervalID);
+    cvsContext.fillStyle = 'black';
+    cvsContext.fillRect(0,0,cvs.width,cvs.height);
+}
+
+function randomStart()
+{
+    return Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+//Room Selection / Pre Game Functions
+
+///////////////////////////////////////////////////////////////////////////////
+
+form.addEventListener("submit", function(event)
+{
+    if (form[1].value == "Play Again?")
+        return;
+
+    event.preventDefault();
+    if (form[1].value == "Ready")
+        sendReady();
+    else if (form[1].value == "Join Room")
+        joinRoom();
+    else
+    {
+        console.log("WTF was on that button");
+        assert(false);
+    }
+});
+
+function joinRoom()
+{
+    socket.emit("joinRoom", form[0].value)
+
+    instructions.innerHTML = "You are the <span style=\"color: rgb(123, 215, 55);\">GREEN</span> tank. They are the <span style=\"color: rgb(91, 139, 240);\">BLUE</span> tank.<br>Use WASD to move and SPACE to shoot. It takes time to reload!<br>Hit them and don't get hit! Have fun!";
+    textBox.style.display = "none";
+    roomSelect.style.margin = "auto";
+    button.value = "Ready";
+    button.disabled = true;
+}
+
+socket.on("playerConnection", function(text, roomID, num)
+{
+    roomNum.innerHTML = roomID;
+    banner.innerHTML = "Waiting For " + num + " More Players"
+    button.disabled = true;
+    button.style.backgroundColor = "";
+    console.log(text + roomID);
+});
+
+socket.on("roomFull", function()
+{
+    banner.innerHTML = "Room Full, Ready up!";
+    button.disabled = false;
+});
+
+function sendReady()
+{
+    socket.emit("socketReady");
+
+    button.disabled = true;
+    button.style.backgroundColor = "green";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Game Logic
+
+///////////////////////////////////////////////////////////////////////////////
+
 //get number of tanks and create sprites
 socket.on("gamestart", function(tanks)
 {
-    document.getElementById("welcome").style.display = "none";
-    endTanksAnimation();
+    grey.style.display = "none";
+    endBgAnimation();
 
     console.log("Game Started!");
     for (var i = 0; i < tanks.length; i++)
@@ -150,7 +205,7 @@ socket.on("gamestate", function(tanks)
         }
 
         if (tanks[i].id == socket.id)
-            scoreScoreCell.innerHTML = tanks[i].score;
+            score.innerHTML = tanks[i].score;
     }
 });
 
@@ -158,16 +213,23 @@ socket.on("gamestate", function(tanks)
 socket.on("gameend", function()
 {
     console.log("Game Ended!");
-    document.getElementById("welcome").style.display = "initial";
-    document.getElementById("banner").innerHTML = "Game Over!"
-    document.getElementById("instructions").innerHTML = "You got " + scoreScoreCell.innerHTML + " points!";
-    document.getElementById("button").value = "Play Again?";
-    document.getElementById("button").style.backgroundColor = "";
-    document.getElementById("button").disabled = false;
+
+    grey.style.display = "initial";
+    banner.innerHTML = "Game Over!"
+    instructions.innerHTML = "You got " + score.innerHTML + " points!";
+    button.value = "Play Again?";
+    button.style.backgroundColor = "";
+    button.disabled = false;
 
     cvsContext.fillStyle = 'black';
     cvsContext.fillRect(0,0,cvs.width,cvs.height);
 });
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Gameplay
+
+///////////////////////////////////////////////////////////////////////////////
 
 window.onkeydown = window.onkeyup = function(e)
 {
@@ -199,6 +261,12 @@ function chooseActions()
   if (keyMap[SPACE])
    socket.emit("move", "shoot");
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Debug
+
+///////////////////////////////////////////////////////////////////////////////
 
 socket.on("msg", function(text)
 {

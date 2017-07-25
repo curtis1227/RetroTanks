@@ -85,7 +85,6 @@ function onConnection(socket)
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
-	//joinRoom(socket);
 	socket.on("joinRoom", function(roomID)
 	{
 		joinRoom(socket, roomID);
@@ -169,7 +168,7 @@ function joinRoom(socket, roomID)
 
 	room.playersInRoom.set(socket.id, false);
 
-	io.to(room.id).emit("joinRoom", socket.id + " has joined room: ", room.id, PLAYERSPERROOM - room.numInRoom - 1);
+	io.to(room.id).emit("playerConnection", socket.id + " has joined room: ", roomID, PLAYERSPERROOM - room.numInRoom - 1);
 	console.log("Player " + socket.id + " has joined room " + room.id);
 
 	//move room from notFullRooms to fullRooms
@@ -198,19 +197,31 @@ function createRoom()
 function leaveRoom(socket)
 {
 	var roomID = socket.room;
-	io.to(roomID).emit("msg", socket.id + " has left the room.");
 	console.log(socket.id + " has left room " + roomID);
 
 	if (fullRooms.has(roomID))
 	{
 		var room = fullRooms.get(roomID);
-		stopGame(room);
+		if (room.game != null)
+		{
+			//stop game and delete room
+			stopGame(room);
+		}
+		else
+		{
+			//move room back to notFullRooms queue
+			--room.numInRoom;
+			room.playersInRoom.delete(socket.id);
+			for (var id of room.playersInRoom.keys())
+			{
+				room.playersInRoom.set(id, false);
+			}
+			io.to(roomID).emit("playerConnection", socket.id + " has left room: ", roomID, PLAYERSPERROOM - room.numInRoom);
+			notFullRooms.push(room);
+		}
 
 		//move full room to not full room queue
-		--room.numInRoom;
-		room.playersInRoom.delete(socket.id);
 
-		notFullRooms.push(room);
 		fullRooms.delete(roomID);
 		console.log("Room " + roomID + " no longer full! numInRoom: " + room.numInRoom);
 	}
@@ -223,6 +234,8 @@ function leaveRoom(socket)
 			{
 				--notFullRooms.current.numInRoom;
 				notFullRooms.current.playersInRoom.delete(socket.id);
+				io.to(roomID).emit("playerConnection", socket.id + " has left room: ", roomID, PLAYERSPERROOM - notFullRooms.current.numInRoom);
+				
 				console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
 				if (notFullRooms.current.numInRoom <= 0)
 				{
