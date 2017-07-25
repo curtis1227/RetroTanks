@@ -9,7 +9,7 @@ var SAT = require('sat');
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 2;
+const PLAYERSPERROOM = 3;
 
 var players = new Map();
 var numPlayers = 0;
@@ -310,25 +310,27 @@ function TankGame(playersInRoom){
 			        continue;
 			    }
 
-	      		for (var k = 0; k < this.tanks.length; k++)
-	      		{
-			        //Skip the tank that fired
-			        if(i == k) {continue;}
-			        //If collided
-			        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
-			        {
-			        	//console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
-				        //Delete the bullet and update score
-				        this.tanks[i].deleteBullet(j);
-				        j--;
-				        this.tanks[i].score += 1;
+      		for (var k = 0; k < this.tanks.length; k++)
+      		{
+		        //Skip the tank that fired
+		        if(i == k) {continue;}
+		        //If collided
+		        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
+		        {
+		        	console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
+			        //Delete the bullet and update score
+			        this.tanks[i].deleteBullet(j);
+			        j--;
+			        this.tanks[i].score += 1;
 
-				        //Move tank off screen
-				        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
-				        this.tanks[k].dead = true;
-				    }
-		        }
-	      	}
+			        //Move tank off screen
+			        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
+			        this.tanks[k].dead = true;
+              //Break to stop checking if the deleted bullet (now undefined) hit other tanks
+              break;
+			      }
+	        }
+	      }
 	    }
 
 	    //Update tanks and bullets
@@ -434,6 +436,8 @@ function Tank(playerID){
   this.deleteBullet = function(bulletNumber){
     //delete this.bullets[bulletNumber];
     this.bullets.splice(bulletNumber,1);
+    console.log("Spliced " + this.id + " bullet " + bulletNumber);
+    console.log(this.bullets);
   }
 
   //Draw tank for the 1st time
