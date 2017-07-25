@@ -4,11 +4,12 @@ var express = require("express");
 var socketio = require("socket.io");
 var UUID = require("uuid");
 var linkedList = require("linkedlist");
+var SAT = require('sat');
 
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 4;
+const PLAYERSPERROOM = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -22,7 +23,11 @@ var notFullRooms = new linkedList();
 ////VARIABLES FOR GAMES////
 const CVSWIDTH = 800;
 const CVSHEIGHT = 600;
-const TANKSIZE = 84;
+const CVS_TOP = new SAT.Polygon(new SAT.Vector(0,CVSHEIGHT),[new SAT.Vector(), new SAT.Vector(CVSWIDTH,0)]);
+const CVS_LEFT = new SAT.Polygon(new SAT.Vector(),[new SAT.Vector(), new SAT.Vector(0,CVSHEIGHT)]);
+const CVS_BOTTOM = new SAT.Polygon(new SAT.Vector(),[new SAT.Vector(), new SAT.Vector(CVSWIDTH,0)]);
+const CVS_RIGHT = new SAT.Polygon(new SAT.Vector(CVSWIDTH,0),[new SAT.Vector(), new SAT.Vector(0,CVSHEIGHT)]);
+const INI_TANKHEIGHT = 84, INI_TANKWIDTH = 70;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
@@ -176,7 +181,7 @@ function leaveRoom(socket)
 			if (notFullRooms.current.id == roomID)
 			{
 				--notFullRooms.current.numInRoom;
-				notFullRooms.current.playersInRoom.delete(roomID);
+				notFullRooms.current.playersInRoom.delete(socket.id);
 				console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
 				if (notFullRooms.current.numInRoom <= 0)
 				{
@@ -252,18 +257,23 @@ function TankGame(playersInRoom){
 	  	{
 	    	for (var j = 0;j<this.tanks[i].bullets.length;j++)
 	    	{
-			    var bulletX = this.tanks[i].bullets[j].posX;
-				var bulletY = this.tanks[i].bullets[j].posY;
+	    		//Check bullet collision with edges
+	    		if (this.tanks[i].bullets[j].hitBox.pos.x < 0 || 
+	    			this.tanks[i].bullets[j].hitBox.pos.x + BULLETSIZE > CVSWIDTH ||
+			    	this.tanks[i].bullets[j].hitBox.pos.y < 0 || 
+			    	this.tanks[i].bullets[j].hitBox.pos.y + BULLETSIZE > CVSHEIGHT)
+			    {
+			        this.tanks[i].deleteBullet(j);
+			        j--;
+			        continue;			    	
+			    }
 
 	      		for (var k = 0; k < this.tanks.length; k++)
 	      		{
 			        //Skip the tank that fired
 			        if(i == k) {continue;}
 			        //If collided
-			        if (bulletX < this.tanks[k].posX + TANKSIZE/2 &&
-			            bulletX > this.tanks[k].posX - TANKSIZE/2 &&
-			            bulletY < this.tanks[k].posY + TANKSIZE/2 &&
-			            bulletY > this.tanks[k].posY - TANKSIZE/2) 
+			        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
 			        {
 			        	//console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
 				        //Delete the bullet and update score
@@ -272,24 +282,16 @@ function TankGame(playersInRoom){
 				        this.tanks[i].score += 1;
 
 				        //Move tank off screen
-				        this.tanks[k].posX = -100;
-				        this.tanks[k].posY = -100;
+				        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
 				        this.tanks[k].dead = true;
 				    }
 		        }
-
-			    if (bulletX < 0 || bulletX > CVSWIDTH ||
-			    	bulletY < 0 || bulletY > CVSHEIGHT)
-			    {
-			        this.tanks[i].deleteBullet(j);
-			        j--;				    	
-			    }
 	      	}
 	    }
 
 	    //Update tanks and bullets
   		for(var i = 0;i<this.tanks.length;i++){
-    		this.tanks[i].update(); //Move this inside above for loop?
+    		this.tanks[i].update();
   		}
 	}
 }
@@ -299,8 +301,13 @@ function Tank(playerID){
   //Initialize vars
   this.id = playerID;
   //TODO change tank starting positions
-  this.posX = Math.random() * CVSWIDTH;
-  this.posY = Math.random() * CVSHEIGHT;
+  var startVector = new SAT.Vector(Math.random() * CVSWIDTH, Math.random() * CVSHEIGHT);
+  //Position vector is bottom left corner
+  this.hitBox = new SAT.Polygon(startVector
+    , [ new SAT.Vector(-INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
+    , new SAT.Vector(INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
+    , new SAT.Vector(INI_TANKWIDTH/2, INI_TANKHEIGHT/2)
+    , new SAT.Vector(-INI_TANKWIDTH/2, INI_TANKHEIGHT/2) ]);
   this.direction = UP;
   this.bullets = [];
   this.shootCooldown = 0;
@@ -318,38 +325,42 @@ function Tank(playerID){
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
     }
-
   }
+
   //Move
   this.move = function(Idirection){
   	//console.log("Player " + this.id + "'s Moved!");
-    //Set direction
-    this.direction = Idirection;
+    if(this.direction != Idirection){
+      //Set direction
+      this.direction = Idirection;
+      //Rotate hitBox
+      if(Idirection == UP || Idirection == DOWN){
+        this.hitBox.setAngle(0);
+      } else {
+        this.hitBox.setAngle(Math.PI/2);
+      }
+    }
+    
+    //Check for bounds of screen and tank collision
     //Up
     if(Idirection == UP){
-      this.posY += -moveAmt;
+      this.hitBox.pos.y += moveAmt;
+      if(SAT.testPolygonPolygon(this.hitBox,CVS_TOP) || checkTankcollision(this)) {this.hitBox.pos.y += -moveAmt;}
     //Right
     } else if(Idirection == RIGHT){
-      this.posX += moveAmt;
+      this.hitBox.pos.x += moveAmt;
+      if(SAT.testPolygonPolygon(this.hitBox,CVS_RIGHT) || checkTankcollision(this)) {this.hitBox.pos.x += -moveAmt;}
     //Down
     } else if(Idirection == DOWN){
-      this.posY += moveAmt;
+      this.hitBox.pos.y += -moveAmt;
+      if(SAT.testPolygonPolygon(this.hitBox,CVS_BOTTOM) || checkTankcollision(this)) {this.hitBox.pos.y += moveAmt;}
     //Left
     } else if(Idirection == LEFT){
-      this.posX += -moveAmt;
+      this.hitBox.pos.x += -moveAmt;
+      if(SAT.testPolygonPolygon(this.hitBox,CVS_LEFT) || checkTankcollision(this)) {this.hitBox.pos.x += moveAmt;}
     }
-
-    //bounds of screen
-    if (this.posY - TANKSIZE / 2 < 0)
-      this.posY += moveAmt;
-    else if (this.posX + TANKSIZE / 2 >= CVSWIDTH)
-      this.posX += -moveAmt;
-    else if (this.posY + TANKSIZE / 2 >= CVSHEIGHT)
-      this.posY += -moveAmt;
-    else if (this.posX - TANKSIZE / 2 < 0)
-      this.posX += moveAmt;
-    //console.log(cvs.width + " " + cvs.height);
-    //console.log(this.posX + " " + this.posY);
+    //console.log(this.hitBox);
+    //console.log(this.hitBox.pos.x + " " + this.hitBox.pos.y);
   }
   //Fire bullet; REMEMBER TO DELETE BULLETS
   this.fireBullet = function(){
@@ -358,23 +369,31 @@ function Tank(playerID){
     {
       //Up
       if(this.direction == UP){
-        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY-TANKSIZE/2-4,0,-bulletSpeed);
+        this.bullets[this.bullets.length] = new Bullet(this.hitBox.pos.x
+        	,this.hitBox.pos.y+INI_TANKHEIGHT/2+BULLETSIZE
+        	,0,bulletSpeed);
       //Right
       } else if(this.direction == RIGHT){
-        this.bullets[this.bullets.length] = new Bullet(this.posX+TANKSIZE/2+4,this.posY,bulletSpeed,0);
+        this.bullets[this.bullets.length] = new Bullet(this.hitBox.pos.x+INI_TANKHEIGHT/2+BULLETSIZE
+        	,this.hitBox.pos.y
+        	,bulletSpeed,0);
       //Down
       } else if(this.direction == DOWN){
-        this.bullets[this.bullets.length] = new Bullet(this.posX,this.posY+TANKSIZE/2+4,0,bulletSpeed);
+        this.bullets[this.bullets.length] = new Bullet(this.hitBox.pos.x
+        	,this.hitBox.pos.y-INI_TANKHEIGHT/2-BULLETSIZE
+        	,0,-bulletSpeed);
       //Left
       } else if(this.direction == LEFT){
-        this.bullets[this.bullets.length] = new Bullet(this.posX-TANKSIZE/2-4,this.posY,-bulletSpeed,0);
+        this.bullets[this.bullets.length] = new Bullet(this.hitBox.pos.x-INI_TANKHEIGHT/2-BULLETSIZE
+        	,this.hitBox.pos.y
+        	,-bulletSpeed,0);
       }
       this.shootCooldown = shootDelay;
     }
   }
   //Delete bullet
   this.deleteBullet = function(bulletNumber){
-    delete this.bullets[bulletNumber];
+    //delete this.bullets[bulletNumber];
     this.bullets.splice(bulletNumber,1);
   }
 
@@ -389,22 +408,39 @@ function Tank(playerID){
 /*****************/
 function Bullet(IposX,IposY,IspeedX,IspeedY){
   //Initialize vars
-  this.posX = IposX;
-  this.posY = IposY;
+  //hitBox position vector is bottom left corner
+  this.hitBox = new SAT.Box(new SAT.Vector(IposX, IposY), BULLETSIZE, BULLETSIZE);
   this.speedX = IspeedX;
   this.speedY = IspeedY;
 
   ////MEMBER FUNCTIONS////
   //Update bullet
   this.update = function(){
-    this.posX += this.speedX;
-    this.posY += this.speedY;
+    this.hitBox.pos.x += this.speedX;
+    this.hitBox.pos.y += this.speedY;
   }
 
   //Draw bullet for the 1st time
   this.update();
 }
 
+//HELPER FUNCTION
+
+//REQUIRES: playertank has the hitbox of the expected position of playertank after move
+//EFFECTS: Returns whether the move playertank is trying to make will collide with another tank
+function checkTankcollision(playertank){
+	//Gets the game of the room the tank is in. hehe.
+	var game = fullRooms.get(players.get(playertank.id).room).game;
+	for(var tank of game.tanks){
+		if(tank == playertank) {continue;}
+		if(SAT.testPolygonPolygon(playertank.hitBox,tank.hitBox)){
+			//Collided
+			return true;
+		}
+	}
+	//No collision
+	return false;
+}
 
 //TEST FUNCTIONS
 

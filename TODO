@@ -1,6 +1,6 @@
-Things to Add to Tank Game
+Tank Game TO-Do List
 -welcome screen
--prevent tank clipping
+-change bullet hitBox to polygon
 -respawn after shot
 -map background
 -fix spawn locations
