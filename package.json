@@ -1,28 +1,23 @@
 {
-  "name": "li-song",
-  "version": "1.0.0",
+  "name": "retrotanks",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
-  "dependencies": {
-    "express": "^4.15.3",
-    "linkedlist": "^1.0.1",
-    "nan": "^2.6.2",
-    "node-gyp": "^3.6.2",
-    "socket.io": "^2.0.3",
-    "uuid": "^3.1.0"
-  },
-  "devDependencies": {},
+  "main": "gameServer.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/curtis1227/Li-Song.git"
-  },
   "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/curtis1227/Li-Song/issues"
-  },
-  "homepage": "https://github.com/curtis1227/Li-Song#readme"
+  "license": "UNLICENSED",
+  "private": "true",
+  "contributors": [
+    "Steven Song",
+    "Curtis Li"
+  ],
+  "dependencies": {
+    "express": "^4.15.3",
+    "linkedlist": "^1.0.1",
+    "sat": "^0.6.0",
+    "socket.io": "^2.0.3",
+    "uuid": "^3.1.0"
+  }
 }
