@@ -306,8 +306,8 @@ function leaveNotFullRoom(socket)
 function stopGame(room)
 {
 	//can expand this more later
+	io.to(room.id).emit("gameend", room.game.tanks);
 	delete room.game;
-	io.to(room.id).emit("gameend");
 	console.log("Game in Room " + room.id + " ended");
 }
 

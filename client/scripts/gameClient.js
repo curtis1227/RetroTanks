@@ -210,12 +210,23 @@ socket.on("gamestate", function(tanks)
 });
 
 //erase board and clean up after game ends
-socket.on("gameend", function()
+socket.on("gameend", function(tanks)
 {
+    var highScore = 0;
+    for (var i = 0; i < tanks.length; i++)
+    {
+        if (tanks[i].score > highScore)
+            highScore = tanks[i].score;
+    }
+
+    var winMsg = "You Lost";
+    if (score.innerHTML == highScore)
+        winMsg = "You Won!";
+
     console.log("Game Ended!");
 
     grey.style.display = "initial";
-    banner.innerHTML = "Game Over!"
+    banner.innerHTML = "Game Over! " + winMsg;
     instructions.innerHTML = "You got " + score.innerHTML + " points!";
     button.value = "Play Again?";
     button.style.backgroundColor = "";
