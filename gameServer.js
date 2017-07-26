@@ -4,7 +4,7 @@ var express = require("express");
 var socketio = require("socket.io");
 var UUID = require("uuid");
 var linkedList = require("linkedlist");
-var SAT = require('sat');
+var SAT = require("sat");
 
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
