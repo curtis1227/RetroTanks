@@ -449,8 +449,8 @@ function Tank(playerID){
   this.deleteBullet = function(bulletNumber){
     //delete this.bullets[bulletNumber];
     this.bullets.splice(bulletNumber,1);
-    console.log("Spliced " + this.id + " bullet " + bulletNumber);
-    console.log(this.bullets);
+    //console.log("Spliced " + this.id + " bullet " + bulletNumber);
+    //console.log(this.bullets);
   }
 
   //Draw tank for the 1st time
