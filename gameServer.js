@@ -9,7 +9,7 @@ var SAT = require('sat');
 ////VARIABLES FOR SERVER////
 const PORT = 7777;
 const FPS = 30;
-const PLAYERSPERROOM = 3;
+const PLAYERSPERROOM = 2;
 
 var players = new Map();
 var numPlayers = 0;
@@ -19,6 +19,7 @@ var numPlayers = 0;
 //notFullRooms only has rooms that are neither full nor empty
 var fullRooms = new Map();
 var notFullRooms = new linkedList();
+var postGameRooms = new Map();
 
 ////VARIABLES FOR GAMES////
 const CVSWIDTH = 800;
@@ -31,6 +32,7 @@ const INI_TANKHEIGHT = 84, INI_TANKWIDTH = 70;
 const BULLETSIZE = 4;
 const W = 87, D = 68    , S = 83    , A = 65    , SPACE = 32;
 const UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270;
+const GAMEOVER = -1;
 
 var moveAmt = 5;
 var shootDelay = 20;
@@ -58,7 +60,14 @@ function updateRooms()
 	for (var room of fullRooms.values())
 	{
 		if (room.game != null)
-			updateGame(room);
+		{
+			if(updateGame(room) == GAMEOVER)
+			{
+				postGameRooms.set(room.id, room);
+				fullRooms.delete(room.id);
+				console.log("Room " + room.id + " moved to postGameRooms");
+			}
+		}
 	}
 }
 
@@ -66,7 +75,11 @@ function updateRooms()
 function updateGame(room)
 {
 	//update game and process player moves
-	room.game.update();
+	if (room.game.update() == GAMEOVER)
+	{
+		stopGame(room);
+		return GAMEOVER;
+	}
 
 	//update players with updated tank/bullet positions
 	io.to(room.id).emit("gamestate", room.game.tanks);
@@ -197,58 +210,96 @@ function createRoom()
 function leaveRoom(socket)
 {
 	var roomID = socket.room;
-	console.log(socket.id + " has left room " + roomID);
+	console.log("Player " + socket.id + " has left room " + roomID);
 
 	if (fullRooms.has(roomID))
 	{
-		var room = fullRooms.get(roomID);
-		if (room.game != null)
-		{
-			//stop game and delete room
-			stopGame(room);
-		}
-		else
-		{
-			//move room back to notFullRooms queue
-			--room.numInRoom;
-			room.playersInRoom.delete(socket.id);
-			for (var id of room.playersInRoom.keys())
-			{
-				room.playersInRoom.set(id, false);
-			}
-			io.to(roomID).emit("playerConnection", socket.id + " has left room: ", roomID, PLAYERSPERROOM - room.numInRoom);
-			notFullRooms.push(room);
-		}
-
-		//move full room to not full room queue
-
-		fullRooms.delete(roomID);
-		console.log("Room " + roomID + " no longer full! numInRoom: " + room.numInRoom);
+		leaveFullRoom(socket);
+	}
+	else if (postGameRooms.has(roomID))
+	{
+		leavePostGameRoom(socket);
 	}
 	else
 	{
-		//update room in not full room queue
-		while (notFullRooms.next())
-		{
-			if (notFullRooms.current.id == roomID)
-			{
-				--notFullRooms.current.numInRoom;
-				notFullRooms.current.playersInRoom.delete(socket.id);
-				io.to(roomID).emit("playerConnection", socket.id + " has left room: ", roomID, PLAYERSPERROOM - notFullRooms.current.numInRoom);
-				
-				console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
-				if (notFullRooms.current.numInRoom <= 0)
-				{
-					notFullRooms.removeCurrent();
-					console.log("Room " + roomID + " deleted");
-				}
-				notFullRooms.resetCursor();
-				return;
-			}
-		}
-		notFullRooms.resetCursor();
-		console.log("ERROR: Room " + roomID + " not found!"); //Something went wrong
+		leaveNotFullRoom(socket);
 	}
+}
+
+//player leaves a full room
+function leaveFullRoom(socket)
+{
+	var room = fullRooms.get(socket.room);
+	room.numInRoom--;
+	room.playersInRoom.delete(socket.id);
+	console.log("Room " + room.id + " updated to have " + room.numInRoom + " players");
+
+	//a player leaving a full room with a game going on signifies game over
+	if (room.game != null)
+	{
+		//stop game (and update players) and move room to postGameRooms
+		stopGame(room);
+		postGameRooms.set(room.id, room);
+		fullRooms.delete(room.id);
+		console.log("Room " + room.id + " moved to postGameRooms");
+	}
+	//a player leaving a full room with no game going on means players need to reready
+	else
+	{
+		//reset player ready states
+		for (var id of room.playersInRoom.keys())
+		{
+			room.playersInRoom.set(id, false);
+		}
+
+		//update players and move room to notFullRooms
+		io.to(roomID).emit("playerConnection", "Player " + socket.id + " has left room: ", roomID, PLAYERSPERROOM - room.numInRoom);
+		notFullRooms.push(room);
+		fullRooms.delete(roomID);
+		console.log("Room " + roomID + " no longer full!");
+	}
+}
+
+//player leaves a post game room
+function leavePostGameRoom(socket)
+{
+	var room = postGameRooms.get(socket.room);
+	room.numInRoom--;
+	room.playersInRoom.delete(socket.id);
+	console.log("Room " + room.id + " updated to have " + room.numInRoom + " players");
+
+	if (room.numInRoom <= 0)
+	{
+		postGameRooms.delete(room.id);
+		console.log("Room " + room.id + " deleted");
+	}
+}
+
+//player leaves a room in queue
+function leaveNotFullRoom(socket)
+{
+	var roomID = socket.room;
+	while (notFullRooms.next())
+	{
+		if (notFullRooms.current.id == roomID)
+		{
+			notFullRooms.current.numInRoom--;
+			notFullRooms.current.playersInRoom.delete(socket.id);
+			io.to(roomID).emit("playerConnection", "Player " + socket.id + " has left room: ", roomID, PLAYERSPERROOM - notFullRooms.current.numInRoom);
+			
+			console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
+			if (notFullRooms.current.numInRoom <= 0)
+			{
+				notFullRooms.removeCurrent();
+				console.log("Room " + roomID + " deleted");
+			}
+			notFullRooms.resetCursor();
+			return;
+		}
+	}
+
+	console.log("Error: Room " + roomID + " Was Not a NotFullRoom!");
+	notFullRooms.resetCursor();
 }
 
 //stops game in room
@@ -277,6 +328,7 @@ function Room()
 function TankGame(playersInRoom){
 
 	this.numTanks = 0;
+	this.numAlive = 0;
 	this.tanks = undefined;
 	this.tanks = [];
 
@@ -284,6 +336,7 @@ function TankGame(playersInRoom){
 	{
 		this.tanks[this.numTanks] = new Tank(socketID);
 		this.numTanks++;
+		this.numAlive++;
 	}
 
 	//update player's tank with move
@@ -307,6 +360,10 @@ function TankGame(playersInRoom){
 
 	this.update = function()
 	{
+		if (this.numAlive <= 1)
+		{
+			return GAMEOVER;
+		}
 		//Check bullets collision with tanks
 	  	for (var i = 0;i<this.tanks.length;i++)
 	  	{
@@ -330,7 +387,7 @@ function TankGame(playersInRoom){
 		        //If collided
 		        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
 		        {
-		        	console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
+		        	//console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
 			        //Delete the bullet and update score
 			        this.tanks[i].deleteBullet(j);
 			        j--;
@@ -339,9 +396,11 @@ function TankGame(playersInRoom){
 			        //Move tank off screen
 			        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
 			        this.tanks[k].dead = true;
-              //Break to stop checking if the deleted bullet (now undefined) hit other tanks
-              break;
-			      }
+			        this.numAlive--;
+
+	                //Break to stop checking if the deleted bullet (now undefined) hit other tanks
+	                break;
+			    }
 	        }
 	      }
 	    }
