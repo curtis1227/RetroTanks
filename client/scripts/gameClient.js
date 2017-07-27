@@ -266,22 +266,28 @@ socket.on("gamestate", function(tanks)
 //erase board and clean up after game ends
 socket.on("gameend", function(tanks)
 {
-    var highScore = 0;
-    for (var i = 0; i < tanks.length; i++)
-    {
-        if (tanks[i].score > highScore)
-            highScore = tanks[i].score;
-    }
-
+    tanks.sort(compareTanks)
+    var highScore = tanks[0].score;
     var winMsg = "You Lost";
     if (score.innerHTML == highScore)
         winMsg = "You Won!";
+    else if (highScore == tanks[1].score)
+        winMsg = "You Tied";
+
+    var list = document.createElement("ol");
+    for (var i = 0; i < tanks.length; i++)
+    {
+        var li = document.createElement("li");
+        li.innerHTML = tanks[i].name + ": " + tanks[i].score;
+        list.appendChild(li);
+    }
 
     console.log("Game Ended!");
 
     grey.style.display = "initial";
     banner.innerHTML = "Game Over! " + winMsg;
-    instructions.innerHTML = "You got " + score.innerHTML + " points!";
+    instructions.innerHTML = "";
+    instructions.appendChild(list);
     button.value = "Play Again?";
     button.style.backgroundColor = "";
     button.disabled = false;
@@ -289,6 +295,16 @@ socket.on("gameend", function(tanks)
     cvsContext.fillStyle = 'black';
     cvsContext.fillRect(0,0,cvs.width,cvs.height);
 });
+
+function compareTanks(a, b)
+{
+    if (a.score < b.score)
+        return 1;
+    else if (a.score > b.score)
+        return -1;
+    else
+        return 0;
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 
