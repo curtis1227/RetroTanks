@@ -63,7 +63,7 @@ function initCanvas()
 
 function welcomeScreen()
 {
-    banner.innerHTML = "Welcome to Tank Game!";
+    banner.innerHTML = "Welcome to Retro Tanks!";
     instructions.innerHTML = "What should we call you?";
     textBox.placeholder = "nickname";
     button.value = "Set Name"
@@ -180,7 +180,7 @@ function joinRoom()
 socket.on("playerConnection", function(text, roomID, num)
 {
     roomNum.innerHTML = roomID;
-    banner.innerHTML = "Waiting For " + num + " More Players"
+    banner.innerHTML = "Waiting For " + num + " More Players";
     button.disabled = true;
     button.style.backgroundColor = "";
     console.log(text + roomID);
@@ -247,6 +247,11 @@ socket.on("gamestate", function(tanks)
     {
         //console.log("Player " + tanks[i].id + " Tanks Position: " + tanks[i].hitBox.pos.x + ", " + tanks[i].hitBox.pos.y);
         tankSprites[i].updateSprite(tanks[i].hitBox.pos.x, tanks[i].hitBox.pos.y, tanks[i].direction);
+        //Name labels
+        cvsContext.fillStyle = 'white';
+        cvsContext.font = "16px Arial";
+        cvsContext.textAlign = 'center';
+        cvsContext.fillText(tanks[i].name,tanks[i].hitBox.pos.x,cvs.height - (tanks[i].hitBox.pos.y + TANKSIZE/2 + 8));
 
         //console.log("Tank " + tanks[i].id + " has " + tanks[i].bullets.length + " bullets");
         for (var j = 0; j < tanks[i].bullets.length; j++)
@@ -268,11 +273,12 @@ socket.on("gameend", function(tanks)
 {
     tanks.sort(compareTanks)
     var highScore = tanks[0].score;
-    var winMsg = "You Lost";
-    if (score.innerHTML == highScore)
+    var winMsg = "You Lost.";
+    if (score.innerHTML == highScore){
         winMsg = "You Won!";
-    else if (highScore == tanks[1].score)
-        winMsg = "You Tied";
+        if (highScore == tanks[1].score)
+            winMsg = "You Tied.";
+    }
 
     var list = document.createElement("ol");
     for (var i = 0; i < tanks.length; i++)

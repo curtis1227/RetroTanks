@@ -193,7 +193,7 @@ function joinRoom(socket, roomID)
 	socket.join(roomID);
 	socket.room = roomID;
 
-	room.playersInRoom.set(socket.id, false);
+	room.playersInRoom.set(socket.id, socket);
 
 	io.to(room.id).emit("playerConnection", socket.id + " has joined room: ", roomID, PLAYERSPERROOM - room.numInRoom - 1);
 	console.log("Player " + socket.id + " has joined room " + room.id);
@@ -394,29 +394,29 @@ function TankGame(playersInRoom){
 			        continue;
 			    }
 
-      		for (var k = 0; k < this.tanks.length; k++)
-      		{
-		        //Skip the tank that fired
-		        if(i == k) {continue;}
-		        //If collided
-		        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
-		        {
-		        	//console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
-			        //Delete the bullet and update score
-			        this.tanks[i].deleteBullet(j);
-			        j--;
-			        this.tanks[i].score += 1;
+	      		for (var k = 0; k < this.tanks.length; k++)
+	      		{
+			        //Skip the tank that fired
+			        if(i == k) {continue;}
+			        //If collided
+			        if (SAT.testPolygonPolygon(this.tanks[i].bullets[j].hitBox.toPolygon(),this.tanks[k].hitBox))
+			        {
+			        	//console.log("Tank " + i + "'s " + j + "th Bullet hit Tank " + k);
+				        //Delete the bullet and update score
+				        this.tanks[i].deleteBullet(j);
+				        j--;
+				        this.tanks[i].score += 1;
 
-			        //Move tank off screen
-			        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
-			        this.tanks[k].dead = true;
-			        this.numAlive--;
+				        //Move tank off screen
+				        this.tanks[k].hitBox.pos = new SAT.Vector(-100,-100);
+				        this.tanks[k].dead = true;
+				        this.numAlive--;
 
-	                //Break to stop checking if the deleted bullet (now undefined) hit other tanks
-	                break;
-			    }
-	        }
-	      }
+		                //Break to stop checking if the deleted bullet (now undefined) hit other tanks
+		                break;
+				    }
+		        }
+	    	}
 	    }
 
 	    //Update tanks and bullets

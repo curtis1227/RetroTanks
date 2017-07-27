@@ -29,6 +29,7 @@ function Sprite(x, y, dir, w, h, src, mA)
   		//console.log(this.posX + " " + this.posY);
 
   		//rotating entire canvas to rotate tank cuz apparently theres no better way
+  		//cvs and SAT y-axis are flipped of each other
   		cvsContext.translate(this.posX, cvs.height-this.posY);
   		cvsContext.rotate(this.direction * Math.PI / 180);
 
