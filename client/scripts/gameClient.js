@@ -189,6 +189,7 @@ socket.on("playerConnection", function(text, roomID, num)
 
 socket.on("roomFull", function()
 {
+    readyPing.volume = .5;
     readyPing.play();
     banner.innerHTML = "Room Full, Ready up!";
     button.disabled = false;
