@@ -22,6 +22,7 @@ var keyPress;
 var keyMap = [];
 var tankSprites = [];
 
+var readyPing =document.getElementById("readyPing");
 var cvs = document.getElementById('gameCanvas');
 var cvsContext = cvs.getContext('2d');
 var gameTable = document.getElementById('gameTable');
@@ -188,6 +189,7 @@ socket.on("playerConnection", function(text, roomID, num)
 
 socket.on("roomFull", function()
 {
+    readyPing.play();
     banner.innerHTML = "Room Full, Ready up!";
     button.disabled = false;
 });
