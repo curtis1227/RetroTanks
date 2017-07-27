@@ -50,17 +50,20 @@
 
       <!--WELCOME SCREEN-->
       <div id="welcome">
-        <h1 id="banner" style="text-align: center";>Welcome to Tank Game!</h1><br>
+
+        <h1 id="banner" style="text-align: center";></h1><br>
 
         <p id="instructions">
-        Enter a room number to join a friend's room.<br>
-        If the room is full or the room does not exist, you will be placed in a random room.<br>
-        If the form is left blank, you will be placed in a random room.
         </p>
-        <form id="roomSelect">
-          <input id="textBox" type="text" placeholder="room number">
-          <input id="button" type="submit" value="Join Room">
+
+        <form id="form">
+          <input id="textBox" type="text">
+          <input id="button" type="submit">
         </form>
+
+        <p id="error" style="color: red; display: none;">
+        </p>
+
       </div>
 
       </div>

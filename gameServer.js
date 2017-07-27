@@ -98,6 +98,12 @@ function onConnection(socket)
 	numPlayers++;
 	console.log("New Player Joined! ID: " + socket.id + " numPlayers: " + numPlayers);
 
+	socket.on("setName", function(name)
+	{
+		socket.name = name;
+		console.log("Player " + socket.id + " name set to: " + socket.name);
+	});
+
 	socket.on("joinRoom", function(roomID)
 	{
 		joinRoom(socket, roomID);
@@ -106,12 +112,13 @@ function onConnection(socket)
 	socket.on("socketReady", function()
 	{
 		var room = fullRooms.get(socket.room);
-		room.playersInRoom.set(socket.id, true);
+		socket.ready = true;
+		room.playersInRoom.set(socket.id, socket);
 
 		var allReady = true;
-		for (var ready of room.playersInRoom.values())
+		for (var player of room.playersInRoom.values())
 		{
-			allReady &= ready;
+			allReady &= player.ready;
 		}
 
 		if (allReady)
@@ -120,6 +127,12 @@ function onConnection(socket)
 			io.to(room.id).emit("gamestart", room.game.tanks);
 			console.log("Game in Room " + room.id + " started");
 		}
+	});
+
+	socket.on("leaveRoom", function()
+	{
+		if (socket.room != null)
+			leaveRoom(socket);
 	});
 
 	//client disconnect
@@ -152,6 +165,7 @@ function joinRoom(socket, roomID)
 {
 	var room;
 	var roomFound = false;
+	socket.ready = false;
 
 	//find user specified room
 	while (notFullRooms.next())
@@ -247,13 +261,13 @@ function leaveFullRoom(socket)
 	else
 	{
 		//reset player ready states
-		for (var id of room.playersInRoom.keys())
+		for (var player of room.playersInRoom.values())
 		{
-			room.playersInRoom.set(id, false);
+			player.ready = false;
 		}
 
 		//update players and move room to notFullRooms
-		io.to(roomID).emit("playerConnection", "Player " + socket.id + " has left room: ", roomID, PLAYERSPERROOM - room.numInRoom);
+		io.to(room.id).emit("playerConnection", "Player " + socket.id + " has left room: ", room.id, PLAYERSPERROOM - room.numInRoom);
 		notFullRooms.push(room);
 		fullRooms.delete(roomID);
 		console.log("Room " + roomID + " no longer full!");
@@ -332,9 +346,9 @@ function TankGame(playersInRoom){
 	this.tanks = undefined;
 	this.tanks = [];
 
-	for (var socketID of playersInRoom.keys())
+	for (var socket of playersInRoom.values())
 	{
-		this.tanks[this.numTanks] = new Tank(socketID);
+		this.tanks[this.numTanks] = new Tank(socket);
 		this.numTanks++;
 		this.numAlive++;
 	}
@@ -413,10 +427,11 @@ function TankGame(playersInRoom){
 }
 
 //Tank object
-function Tank(playerID){
+function Tank(socket){
   //Initialize vars
-  this.id = playerID;
-  this.hitBox = new SAT.Polygon(getStartingPosition(playerID)
+  this.id = socket.id;
+  this.name = socket.name;
+  this.hitBox = new SAT.Polygon(getStartingPosition(socket.id)
     , [ new SAT.Vector(-INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
     , new SAT.Vector(INI_TANKWIDTH/2, -INI_TANKHEIGHT/2)
     , new SAT.Vector(INI_TANKWIDTH/2, INI_TANKHEIGHT/2)

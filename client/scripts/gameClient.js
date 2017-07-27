@@ -32,9 +32,10 @@ var grey = document.getElementById("grey");
 var welcome = document.getElementById("welcome");
 var banner = document.getElementById("banner");
 var instructions = document.getElementById("instructions");
-var form = document.getElementById("roomSelect");
+var form = document.getElementById("form");
 var textBox = document.getElementById("textBox");
 var button = document.getElementById("button");
+var error = document.getElementById("error");
 var intervalID;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -46,6 +47,7 @@ var intervalID;
 window.onload = function()
 {
     initCanvas();
+    welcomeScreen();
     startBgAnimation();
 }
 
@@ -57,6 +59,14 @@ function initCanvas()
   //Draw canvas for the 1st time
   cvsContext.fillStyle = 'black';
   cvsContext.fillRect(0,0,cvs.width,cvs.height);    
+}
+
+function welcomeScreen()
+{
+    banner.innerHTML = "Welcome to Tank Game!";
+    instructions.innerHTML = "What should we call you?";
+    textBox.placeholder = "nickname";
+    button.value = "Set Name"
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,22 +105,24 @@ function randomStart()
     return Math.random() * (cvs.height - TANKSIZE) + TANKSIZE / 2;
 }
 
-//////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-//Room Selection / Pre Game Functions
+//Form Stuff
 
 ///////////////////////////////////////////////////////////////////////////////
 
 form.addEventListener("submit", function(event)
 {
-    if (form[1].value == "Play Again?")
-        return;
-
     event.preventDefault();
-    if (form[1].value == "Ready")
-        sendReady();
+    error.style.display = "none";
+    if (form[1].value == "Set Name")
+        setName();
     else if (form[1].value == "Join Room")
         joinRoom();
+    else if (form[1].value == "Ready")
+        sendReady();
+    else if (form[1].value == "Play Again?")
+        leaveRoom();
     else
     {
         console.log("WTF was on that button");
@@ -118,13 +130,49 @@ form.addEventListener("submit", function(event)
     }
 });
 
+///////////////////////////////////////////////////////////////////////////////
+
+//Set Name
+
+///////////////////////////////////////////////////////////////////////////////
+
+function setName()
+{
+    if (form[0].value.trim() == "")
+    {
+        console.log("Name Field Can't Be Blank!");
+        error.style.display = "initial";
+        error.innerHTML = "Name Field Can't Be Blank!";
+        return;
+    }
+
+    socket.emit("setName", form[0].value.trim());
+
+    joinInstructions();
+}
+
+function joinInstructions()
+{
+    banner.innerHTML = "Join A Room";
+    instructions.innerHTML = "Enter a room number to join a friend's room.<br>If the room is full or the room does not exist, you will be placed in a random room.<br>If the form is left blank, you will be placed in a random room.";
+    textBox.style.display = "initial";
+    textBox.placeholder = "room number";
+    textBox.value = "";
+    button.value = "Join Room";    
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+//Room Selection / Pre Game Functions
+
+///////////////////////////////////////////////////////////////////////////////
+
 function joinRoom()
 {
-    socket.emit("joinRoom", form[0].value)
+    socket.emit("joinRoom", form[0].value.trim());
 
     instructions.innerHTML = "You are the <span style=\"color: rgb(123, 215, 55);\">GREEN</span> tank. They are the <span style=\"color: rgb(91, 139, 240);\">BLUE</span> tank.<br>Use WASD to move and SPACE to shoot. It takes time to reload!<br>Hit them and don't get hit! Have fun!";
     textBox.style.display = "none";
-    roomSelect.style.margin = "auto";
     button.value = "Ready";
     button.disabled = true;
 }
@@ -150,6 +198,12 @@ function sendReady()
 
     button.disabled = true;
     button.style.backgroundColor = "green";
+}
+
+function leaveRoom()
+{
+    socket.emit("leaveRoom");
+    joinInstructions();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
