@@ -269,8 +269,8 @@ function leaveFullRoom(socket)
 		//update players and move room to notFullRooms
 		io.to(room.id).emit("playerConnection", "Player " + socket.id + " has left room: ", room.id, PLAYERSPERROOM - room.numInRoom);
 		notFullRooms.push(room);
-		fullRooms.delete(roomID);
-		console.log("Room " + roomID + " no longer full!");
+		fullRooms.delete(room.id);
+		console.log("Room " + room.id + " no longer full!");
 	}
 }
 
