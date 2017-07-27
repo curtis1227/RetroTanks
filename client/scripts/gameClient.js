@@ -153,7 +153,7 @@ function setName()
 
 function joinInstructions()
 {
-    banner.innerHTML = "Join A Room";
+    banner.innerHTML = "Join a Room";
     instructions.innerHTML = "Enter a room number to join a friend's room.<br>If the room is full or the room does not exist, you will be placed in a random room.<br>If the form is left blank, you will be placed in a random room.";
     textBox.style.display = "initial";
     textBox.placeholder = "room number";
