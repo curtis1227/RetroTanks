@@ -1,12 +1,8 @@
 {
   "name": "retrotanks",
-  "version": "0.1.2",
-  "description": "",
+  "version": "0.2.0",
+  "description": "Game based off of the NES game Battle City",
   "main": "gameServer.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
   "license": "GPLv3",
   "contributors": [
     "Steven Song",

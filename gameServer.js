@@ -57,9 +57,9 @@ var shootDelay = 20;
 var bulletSpeed = 10;
 
 ////setting up server////
-var app = express();
-var server = http.createServer(app);
-var io = socketio(server);
+const app = express();
+const server = http.createServer(app);
+const io = socketio(server);
 
 app.use(express.static(__dirname + '/client'));
 server.listen(PORT, serverStart);
