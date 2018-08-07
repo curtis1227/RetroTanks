@@ -1,15 +1,25 @@
 ////imported libraries////
-var http = require("http");
-var express = require("express");
-var socketio = require("socket.io");
-var UUID = require("uuid");
-var linkedList = require("linkedlist");
-var SAT = require("sat");
+const http = require("http");
+const express = require("express");
+const socketio = require("socket.io");
+const UUID = require("uuid");
+const linkedList = require("linkedlist");
+const SAT = require("sat");
+const minimist = require('minimist');
+
+const args = minimist(process.argv.slice(2), {
+    default: {
+        port: 7777,
+				fps: 30,
+				playersPerRoom: 2,
+    },
+});
+console.log('args:', args);
 
 ////VARIABLES FOR SERVER////
-const PORT = 7777;
-const FPS = 30;
-const PLAYERSPERROOM = 3;
+const PORT = args.port;
+const FPS = args.fps;
+const PLAYERSPERROOM = args.playersPerRoom;
 
 var players = new Map();
 var numPlayers = 0;
@@ -143,7 +153,7 @@ function onConnection(socket)
 		console.log("Player " + socket.id + " has left! " + numPlayers + " still on.");
 		//console.log("Player table size: " + players.length);
 
-		if (socket.room != null) 
+		if (socket.room != null)
 			leaveRoom(socket);
 	});
 
@@ -300,7 +310,7 @@ function leaveNotFullRoom(socket)
 			notFullRooms.current.numInRoom--;
 			notFullRooms.current.playersInRoom.delete(socket.id);
 			io.to(roomID).emit("playerConnection", "Player " + socket.id + " has left room: ", roomID, PLAYERSPERROOM - notFullRooms.current.numInRoom);
-			
+
 			console.log("Room " + roomID + " updated to have " + (notFullRooms.current.numInRoom) + " players");
 			if (notFullRooms.current.numInRoom <= 0)
 			{
@@ -384,9 +394,9 @@ function TankGame(playersInRoom){
 	    	for (var j = 0;j<this.tanks[i].bullets.length;j++)
 	    	{
 	    		//Check bullet collision with edges
-	    		if (this.tanks[i].bullets[j].hitBox.pos.x < 0 || 
+	    		if (this.tanks[i].bullets[j].hitBox.pos.x < 0 ||
 	    			this.tanks[i].bullets[j].hitBox.pos.x + BULLETSIZE > CVSWIDTH ||
-			    	this.tanks[i].bullets[j].hitBox.pos.y < 0 || 
+			    	this.tanks[i].bullets[j].hitBox.pos.y < 0 ||
 			    	this.tanks[i].bullets[j].hitBox.pos.y + BULLETSIZE > CVSHEIGHT)
 			    {
 			        this.tanks[i].deleteBullet(j);
@@ -448,7 +458,7 @@ function Tank(socket){
     if (this.shootCooldown-- <= 0)
       this.shootCooldown = 0;
     //console.log(this.shootCooldown);
-    
+
     //Update bullets
     for(var i = 0;i < this.bullets.length;i++){
       this.bullets[i].update();
@@ -468,7 +478,7 @@ function Tank(socket){
         this.hitBox.setAngle(Math.PI/2);
       }
     }
-    
+
     //Check for bounds of screen and tank collision
     //Up
     if(Idirection == UP){
