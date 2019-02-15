@@ -16,4 +16,5 @@ You can test/play by yourself by opening two or more browser tabs/windows.
 ## Authors
 
 **Curtis Li** - (https://github.com/curtis1227)
+
 **Steven Song** - (https://github.com/StevieSong)
