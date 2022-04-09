@@ -14,7 +14,7 @@
     "sat": "^0.6.0",
     "socket.io": "^2.4.0",
     "uuid": "^3.1.0",
-    "minimist": "^1.2.3"
+    "minimist": "^1.2.6"
   },
   "devDependencies": {
     "prettier": "1.14.0"
